@@ -1,6 +1,6 @@
 // Visa Bulletin helpers over data/visa-bulletin/*.json (India EB rows). Pure: callers pass the bulletins in.
 // A cut-off is an ISO date, "C" (current for everyone) or "U" (unavailable to everyone).
-import { parseISO } from './dates.js';
+import { parseISO, isMonth } from './dates.js';
 
 const DAY = 86400000;
 const isDate = (c) => /^\d{4}-\d{2}-\d{2}$/.test(c ?? '');
@@ -48,4 +48,35 @@ export function estimate(bulletins, pd, category) {
   const pace = days(first.cutoff, last.cutoff) / monthsBetween(first.month, h.at(-1).month);
   if (!(pace > 0)) return null;
   return Math.max(0, days(last.cutoff, pd)) / pace / 12;
+}
+
+// For a month-only priority date ("YYYY-MM"): which charts have their cut-off inside that month after its first day,
+// so the exact day decides current vs not current. A cut-off on the 1st leaves no day that qualifies, so it is not ambiguous.
+export function ambiguity(bulletins, month, category) {
+  const b = latest(bulletins);
+  if (!b || !isMonth(month) || !b.finalAction[category]) return null;
+  const inside = (c) => isDate(c) && c.slice(0, 7) === month && c.slice(8) !== '01';
+  return { finalAction: inside(b.finalAction[category]), datesForFiling: inside(b.datesForFiling[category]) };
+}
+
+// Whole months between a chart's latest cut-off and your date, as years + months; behind=true when the cut-off is
+// earlier than your date. null when the chart is C/U this month (no date to compare).
+export function gap(bulletins, pd, category, chart = 'finalAction') {
+  const c = latest(bulletins)?.[chart]?.[category];
+  if (!pd || !isDate(c)) return null;
+  const m = monthsBetween(c, pd);
+  return { years: Math.floor(Math.abs(m) / 12), months: Math.abs(m) % 12, behind: m > 0, same: m === 0 };
+}
+
+// 0..1: how far the Final Action cut-off travelled toward `pd` over the last 12 bulletins (oldest dated cut-off -> your date).
+// 1 once current. null without a dated cut-off in the window.
+export function progress(bulletins, pd, category) {
+  const s = status(bulletins, pd, category);
+  if (!s) return null;
+  if (s.finalAction === 'current') return 1;
+  const dated = history(bulletins, category, 12).filter((x) => isDate(x.cutoff));
+  if (!dated.length) return null;
+  const [first, last] = [dated[0].cutoff, dated.at(-1).cutoff];
+  const total = days(first, pd);
+  return total <= 0 ? 1 : Math.min(1, Math.max(0, days(first, last) / total));
 }

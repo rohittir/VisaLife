@@ -1,20 +1,26 @@
 import { NavLink } from 'react-router-dom';
+import Icon from './Icon.jsx';
 
 const TABS = [
-  ['/home', 'Home'],
-  ['/journey', 'Journey'],
-  ['/policy', 'Policy'],
-  ['/me', 'Me'],
+  ['/home', 'Today', 'home'],
+  ['/journey', 'Journey', 'route'],
+  ['/policy', 'Policy', 'gavel'],
+  ['/me', 'Me', 'user'],
 ];
 
 export default function BottomTabs() {
   return (
     <nav className="tabs" aria-label="Main">
-      {TABS.map(([to, label]) => (
-        <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'tab active' : 'tab')}>
-          {label}
-        </NavLink>
-      ))}
+      <ul>
+        {TABS.map(([to, label, icon]) => (
+          <li key={to}>
+            <NavLink to={to} className={({ isActive }) => (isActive ? 'tab active' : 'tab')}>
+              <Icon name={icon} />
+              {label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 }

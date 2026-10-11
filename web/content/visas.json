@@ -3,56 +3,54 @@
     "H1B": {
       "label": "H-1B",
       "stages": [
-        { "id": "new", "label": "Just got my H-1B", "hint": "Approved recently, or just entered on it", "fields": ["i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry", "h1bFirstStart"] },
-        { "id": "working", "label": "Working on H-1B", "hint": "No green-card process yet", "fields": ["i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
-        { "id": "gc_perm_i140", "label": "Green card started", "hint": "Employer has started PERM or filed the I-140", "fields": ["i94Expiry", "i797Expiry", "ebCategory", "priorityDate", "i140ApprovedOn", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
-        { "id": "gc_waiting_pd", "label": "Waiting for my priority date", "hint": "I-140 approved, date not current yet", "fields": ["ebCategory", "priorityDate", "i94Expiry", "i797Expiry", "i140ApprovedOn", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
-        { "id": "i485_pending", "label": "I-485 filed, waiting", "hint": "Adjustment of status is pending", "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "ebCategory", "priorityDate", "i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry"] },
-        { "id": "approved", "label": "Green card approved", "hint": "Congratulations", "fields": ["passportExpiry"] }
+        { "id": "new", "label": "Just got my H-1B", "hint": "Approved recently, or just entered on it", "quick": ["i94Expiry"], "fields": ["i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry", "h1bFirstStart"] },
+        { "id": "working", "label": "Working on H-1B", "hint": "No green-card process yet", "quick": ["i94Expiry"], "fields": ["i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
+        { "id": "gc_perm_i140", "label": "Green card started", "hint": "Employer has started PERM or filed the I-140", "quick": ["i94Expiry"], "fields": ["i94Expiry", "i797Expiry", "ebCategory", "priorityDate", "i140ApprovedOn", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
+        { "id": "gc_waiting_pd", "label": "Waiting for my priority date", "hint": "I-140 approved, date not current yet", "quick": ["ebCategory", "priorityDate"], "fields": ["ebCategory", "priorityDate", "i94Expiry", "i797Expiry", "i140ApprovedOn", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
+        { "id": "i485_pending", "label": "I-485 filed, waiting", "hint": "Adjustment of status is pending", "quick": ["eadExpiry"], "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "ebCategory", "priorityDate", "i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry"] },
+        { "id": "approved", "label": "Green card approved", "hint": "Congratulations", "quick": [], "fields": ["passportExpiry"] }
       ]
     },
     "H4": {
       "label": "H-4",
       "stages": [
-        { "id": "no_ead", "label": "On H-4, no work permit", "hint": "Dependent of an H-1B holder", "fields": ["i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
-        { "id": "ead_eligible", "label": "Eligible for H-4 EAD", "hint": "Spouse's I-140 is approved", "fields": ["i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
-        { "id": "ead_working", "label": "Working on H-4 EAD", "hint": "EAD in hand", "fields": ["eadExpiry", "i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
-        { "id": "i485_derivative", "label": "I-485 filed with my spouse", "hint": "Adjustment of status is pending", "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "i94Expiry", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] }
+        { "id": "no_ead", "label": "On H-4, no work permit", "hint": "Dependent of an H-1B holder", "quick": ["i94Expiry"], "fields": ["i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
+        { "id": "ead_eligible", "label": "Eligible for H-4 EAD", "hint": "Spouse's I-140 is approved", "quick": ["i94Expiry"], "fields": ["i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
+        { "id": "ead_working", "label": "Working on H-4 EAD", "hint": "EAD in hand", "quick": ["eadExpiry"], "fields": ["eadExpiry", "i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
+        { "id": "i485_derivative", "label": "I-485 filed with my spouse", "hint": "Adjustment of status is pending", "quick": ["i94Expiry"], "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "i94Expiry", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] }
       ]
     },
     "F1": {
       "label": "F-1 / OPT",
       "stages": [
-        { "id": "enrolled", "label": "Enrolled, studying", "hint": "Still in my program", "fields": ["programEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate"] },
-        { "id": "opt_applying", "label": "Applying for OPT", "hint": "Graduating within a few months", "fields": ["programEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate"] },
-        { "id": "opt", "label": "On OPT", "hint": "Post-completion OPT EAD in hand", "fields": ["optStart", "optEnd", "unemploymentDaysUsed", "passportExpiry", "visaStampExpiry", "travelSignatureDate"] },
-        { "id": "stem_opt", "label": "On STEM OPT", "hint": "24-month extension", "fields": ["stemOptStart", "stemOptEnd", "unemploymentDaysUsed", "passportExpiry", "visaStampExpiry", "travelSignatureDate"] },
-        { "id": "h1b_selected", "label": "Selected in the H-1B lottery", "hint": "Petition filed or being filed", "fields": ["optEnd", "stemOptEnd", "passportExpiry", "visaStampExpiry"] },
-        { "id": "ending", "label": "OPT ending, not selected", "hint": "Grace period and options", "fields": ["optEnd", "stemOptEnd", "passportExpiry"] }
+        { "id": "enrolled", "label": "Enrolled, studying", "hint": "Still in my program", "quick": ["programEnd"], "fields": ["programEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate"] },
+        { "id": "opt_applying", "label": "Applying for OPT", "hint": "Graduating within a few months", "quick": ["programEnd"], "fields": ["programEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate"] },
+        { "id": "opt", "label": "On OPT", "hint": "Post-completion OPT EAD in hand", "quick": ["optEnd"], "fields": ["optEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate", "unemploymentDaysUsed"] },
+        { "id": "stem_opt", "label": "On STEM OPT", "hint": "24-month extension", "quick": ["stemOptEnd"], "fields": ["stemOptEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate", "unemploymentDaysUsed"] },
+        { "id": "h1b_selected", "label": "Selected in the H-1B lottery", "hint": "Petition filed or being filed", "quick": [], "fields": ["optEnd", "stemOptEnd", "passportExpiry", "visaStampExpiry"] },
+        { "id": "ending", "label": "OPT ending, not selected", "hint": "Grace period and options", "quick": ["optEnd", "stemOptEnd"], "fields": ["optEnd", "stemOptEnd", "passportExpiry"] }
       ]
     }
   },
   "fields": {
-    "i94Expiry": { "label": "I-94 \"Admit Until\" date", "type": "date" },
-    "i797Expiry": { "label": "Current I-797 valid until", "type": "date" },
-    "passportExpiry": { "label": "Passport expiry", "type": "date" },
-    "visaStampExpiry": { "label": "US visa stamp expiry", "type": "date" },
-    "h1bFirstStart": { "label": "First day ever in H-1B status", "type": "date" },
+    "i94Expiry": { "label": "I-94 \"Admit Until\" date", "type": "date", "precision": "day", "group": "Documents", "deadline": true, "unlock": "Add your I-94 date to see how long you can stay" },
+    "i797Expiry": { "label": "Current I-797 valid until", "type": "date", "precision": "day", "group": "Documents", "deadline": true, "unlock": "Add your I-797 end date to see your extension window" },
+    "passportExpiry": { "label": "Passport expiry", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "deadline": true, "unlock": "Add your passport expiry month so we can warn you before it gets close" },
+    "visaStampExpiry": { "label": "US visa stamp expiry", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "deadline": true },
+    "h1bFirstStart": { "label": "First month in H-1B status", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "unlock": "Add the month you first held H-1B to see your six-year limit" },
+    "ebCategory": { "label": "Green card category", "type": "select", "options": ["EB2", "EB3"], "group": "Green card", "unlock": "Which green card category are you in?" },
+    "priorityDate": { "label": "Priority date (PERM filing date)", "type": "date", "precision": "month", "assume": "end", "group": "Green card", "unlock": "Add your priority date to see how close it is to the cut-off" },
+    "i140ApprovedOn": { "label": "I-140 approved on", "type": "date", "precision": "month", "assume": "end", "group": "Green card" },
+    "primaryI140ApprovedOn": { "label": "Spouse's I-140 approved on", "type": "date", "precision": "month", "assume": "end", "group": "Green card", "unlock": "Add the month your spouse's I-140 was approved to see if you can apply for an H-4 EAD" },
+    "i485FiledOn": { "label": "I-485 filed on", "type": "date", "precision": "month", "assume": "end", "group": "Green card" },
+    "eadExpiry": { "label": "EAD card expiry", "type": "date", "precision": "day", "group": "Work permit", "deadline": true, "unlock": "Add your EAD expiry date to get a renewal reminder" },
+    "apExpiry": { "label": "Advance parole expiry", "type": "date", "precision": "day", "group": "Work permit", "deadline": true },
+    "programEnd": { "label": "Program end date (I-20)", "type": "date", "precision": "day", "group": "Documents", "deadline": true, "unlock": "Add your program end date to see your OPT filing window" },
+    "optEnd": { "label": "OPT EAD end", "type": "date", "precision": "day", "group": "Work permit", "deadline": true, "unlock": "Add your OPT end date to see your STEM OPT and grace-period dates" },
+    "stemOptEnd": { "label": "STEM OPT end", "type": "date", "precision": "day", "group": "Work permit", "deadline": true, "unlock": "Add your STEM OPT end date to see your grace-period dates" },
+    "travelSignatureDate": { "label": "Last I-20 travel signature", "type": "date", "precision": "month", "assume": "start", "group": "Documents" },
     "timeOutsideUsDays": { "label": "Full days outside the US since then", "type": "number" },
-    "ebCategory": { "label": "Green card category", "type": "select", "options": ["EB2", "EB3"] },
-    "priorityDate": { "label": "Priority date (PERM filing date)", "type": "date" },
-    "i140ApprovedOn": { "label": "I-140 approved on", "type": "date" },
-    "primaryI140ApprovedOn": { "label": "Spouse's I-140 approved on", "type": "date" },
-    "i485FiledOn": { "label": "I-485 filed on", "type": "date" },
-    "eadExpiry": { "label": "EAD card expiry", "type": "date" },
-    "apExpiry": { "label": "Advance parole expiry", "type": "date" },
-    "programEnd": { "label": "Program end date (I-20)", "type": "date" },
-    "optStart": { "label": "OPT EAD start", "type": "date" },
-    "optEnd": { "label": "OPT EAD end", "type": "date" },
-    "stemOptStart": { "label": "STEM OPT start", "type": "date" },
-    "stemOptEnd": { "label": "STEM OPT end", "type": "date" },
-    "unemploymentDaysUsed": { "label": "Unemployment days used so far", "type": "number" },
-    "travelSignatureDate": { "label": "Last I-20 travel signature", "type": "date" }
+    "unemploymentDaysUsed": { "label": "Unemployment days used so far", "type": "number" }
   },
   "flags": [
     { "id": "spouseOnH4", "label": "My spouse is on H-4", "type": "boolean", "visas": ["H1B"] },

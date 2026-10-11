@@ -43,10 +43,11 @@ VisaLife/
     index.html, vite.config.js (vite-plugin-pwa)
     src/main.jsx, src/App.jsx (router + BottomTabs + AuthProvider)
     src/pages/{Onboarding,Home,Journey,Policy,Me}.jsx
-    src/components/{CheckCard,StatusLine,SituationChips,PDMeter,Sparkline,Timeline,Step,SourceChip,PolicyCard,Countdown}.jsx
+    src/components/{BottomTabs,Icon,Sheet,FieldInput,CheckSheet,JitPrompt,PDMeter,Sparkline,Step,PolicyCard}.jsx
     src/lib/profile.js    ProfileProvider/useProfile over localStorage + sync
     src/lib/checks.js     rules engine (evaluates content/checks/*.json against profile)
-    src/lib/dates.js      all date math (pure functions, tested)
+    src/lib/dates.js      all date math (pure functions, tested), incl. resolveDates (month-only -> full ISO)
+    src/lib/visas.js      shape rules for content/visas.json (precision, assume, quick), shared with the build script
     src/lib/bulletin.js   visa bulletin helpers (current?, movement, estimate)
     src/lib/content.js    import.meta.glob loaders for md/json content
     src/lib/api.js        fetch wrapper (adds id_token)
@@ -74,11 +75,29 @@ VisaLife/
 ## B3. Front end
 
 - **Routing:** `/` (onboarding if no profile), `/home`, `/journey`, `/policy`, `/me`, `/auth/callback`.
-- **Layout:** `main` is a 430px max-width column; `BottomTabs` fixed at bottom with safe-area
-  padding; `@media (min-width: 600px)` centers the column with a neutral background.
+- **Layout:** `main` is a 430px max-width column; `BottomTabs` is a floating rounded bar (12px
+  inset, safe-area aware) with Today (`/home`), Journey, Policy, Me; `@media (min-width: 600px)`
+  centers the column with a neutral background.
+- **Design tokens:** custom properties on `:root` in `styles.css` (roles, not colors: `--page`,
+  `--card`, `--ink`, `--muted`, `--action`, `--hero`, `--done-*`, `--warn-*`, `--over-*`, `--nav`),
+  redefined under `prefers-color-scheme: dark`. `src/lib/contrast.test.js` reads them and asserts
+  WCAG AA 4.5:1 for every text pair (3:1 for borders/rings) in both modes. Orange is only for action
+  buttons and the active tab, always with the navy label.
+- **Sheets:** `Sheet` is a native modal `<dialog>` (Escape, focus trap, focus return from the
+  platform; backdrop click closes). Used for check detail, "Something changed?", priority-date
+  detail and Me editors.
 - **State:** `ProfileProvider` holds the profile in React state, persists to
-  `localStorage["visalife.profile"]` on every change, and exposes `update(patch)`,
-  `setSituation(id, on)`, `markCheck(id, done)`. No other global state.
+  `localStorage["visalife.profile"]` on every change, and exposes `update(patch | fn)` and `reset()`.
+  Profile: `{v, nationality, visa, stage, dates, flags, situations, checks, dismissed, updatedAt}`.
+  `dates[k]` is `YYYY-MM-DD` or, for month-precision fields, `YYYY-MM`; `dismissed` lists the
+  fields whose "add this date" prompt was dismissed. `optStart`/`stemOptStart` are never stored.
+- **Dates:** `visas.json` declares per field `precision` (`day`|`month`), `assume` (`start`|`end`,
+  month fields), `group`, `deadline`, `unlock` (the just-in-time prompt text) and per stage `quick`
+  (at most two ids asked in onboarding). `resolveDates(dates, VISAS.fields)` runs once in Home; its
+  result goes to `checks.evaluate`, the bulletin status and the countdowns, together with
+  `rawDates` (what was entered) so `{pdAmbiguous}` can tell a month-only priority date from an
+  exact one. `ambiguity()` in `bulletin.js` is true when a chart's cut-off falls in the entered
+  month after its first day; the tile and the `gc-pd-exact-day` check then ask for the day.
 - **Content pipeline:** `import.meta.glob('../content/steps/*.md', {query:'?raw', eager:true})`
   parsed with a 15-line frontmatter splitter + `marked` for the body; checks and journeys are
   plain JSON imports. A Vite plugin step (`scripts/validate-content.mjs`, run in `prebuild`)
@@ -173,6 +192,7 @@ export const schema = {
       flags:           { type: Object },
       situations:      { type: Array },
       checks:          { type: Object },
+      dismissed:       { type: Array },
       clientUpdatedAt: { type: String },                      // client clock, used for LWW
     },
   },
@@ -248,6 +268,7 @@ Secrets Manager `visalife/<env>/google`; get a Congress.gov API key (api.data.go
   "priority": 1,
   "when": { "situation": "ENTERED_US" },
   "title": "Just entered the US",
+  "short": "Is your new I-94 correct?",
   "ask": "Does your new I-94 show H-1B and an \"Admit Until\" date matching your I-797 (+10 days)?",
   "why": "The I-94, not the visa stamp or the I-797, controls how long you may stay. Officers sometimes cut it to your passport expiry.",
   "links": [{ "label": "Get my I-94 (CBP)", "url": "https://i94.cbp.dhs.gov" }],
@@ -264,17 +285,21 @@ Secrets Manager `visalife/<env>/google`; get a Congress.gov API key (api.data.go
 - `{dateWithin: {field: "i797Expiry", days: 180}}` · `{datePast: {field: "optEnd"}}`
 - `{season: {from: "02-15", to: "03-31"}}`
 - `{field: "flags.kidsUnder21", eq: true}` · `{computed: "kidAge", gte: 20}`
-- `{pdCurrent: "datesForFiling"}` (uses bulletin for `dates.ebCategory`)
+- `{pdCurrent: "datesForFiling"|"finalAction"|"uscis"}` (uses bulletin for `dates.ebCategory`; `"uscis"` = the chart USCIS accepts this month)
+- `{pdAmbiguous: "datesForFiling"|"finalAction"|"uscis"}` (month-only priority date whose chart cut-off is in the same month)
 `repeat`: `once` (default), `perTrigger` (reset when the situation is toggled on again) or `monthly` (a "yes" lasts until the calendar month changes, used for the Visa Bulletin check).
 Also available: `{always: true}`, `{not: …}`, `{dateSet: "field"}`, `{dateUnset: "field"}`, `{followUpOf: "check-id"}` (shown when that check was answered "Not yet"; this is how `onNo` resolves).
 `onNo`: id of the follow-up check revealed when the user taps "Not yet".
+`short`: the headline shown on Today (hero and rows): at most 8 words and 60 characters, a question
+where natural, sentence case. `title` is the situation chip and `ask` the long text in the detail
+sheet. The build script requires `short`.
 
 ## B7. API contract (`/v1`, all routes require a Cognito ID token)
 
 | Method | Path | Request | Response |
 |---|---|---|---|
 | GET | `/me` | — | `200` profile or `{}` |
-| PUT | `/me` | `{visa, stage, dates, flags, situations, checks, clientUpdatedAt}` (allowlisted keys; ISO dates; ≤ 32 KB) | `200` stored profile |
+| PUT | `/me` | `{visa, stage, dates, flags, situations, checks, dismissed, clientUpdatedAt}` (allowlisted keys; `YYYY-MM-DD` or `YYYY-MM` dates; ≤ 32 KB) | `200` stored profile |
 | DELETE | `/me` | — | `204` |
 | any | other | — | `404 {error}`; auth failures `401`; validation `400 {error}` |
 
@@ -294,7 +319,8 @@ Also available: `{always: true}`, `{not: …}`, `{dateSet: "field"}`, `{dateUnse
 - `web`: `node --test` on `dates.test.js` (6-year clock with recapture, §104(c)/§106(a)
   eligibility, OPT window, unemployment days 90/150, I-983 evaluation dates, cap-gap end,
   grace-period end), `checks.test.js` (each `when` operator, `perTrigger` reset, `onNo` chain),
-  `bulletin.test.js` (current/not current on both charts, movement, estimate guard).
+  `bulletin.test.js` (current/not current on both charts, movement, estimate guard, exact-day ambiguity),
+  `visas.test.js` (precision, assume and quick shape), `contrast.test.js` (WCAG AA in light and dark).
 - `api`: `handler.test.js` runs `api.run()` with a crafted REST event (claims present/missing,
   bad body) against a mocked `Profile`; `tags.test.js`; `policyIngest` tested with recorded
   JSON fixtures from both APIs.

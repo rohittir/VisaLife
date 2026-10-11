@@ -1,38 +1,92 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useProfile } from '../lib/profile.jsx';
 import { BULLETINS, CHECKS, VISAS, stageOf } from '../lib/content.js';
-import { evaluate, resetForSituation } from '../lib/checks.js';
-import { daysUntil, formatDate } from '../lib/dates.js';
-import CheckCard from '../components/CheckCard.jsx';
-import PDMeter from '../components/PDMeter.jsx';
+import { status } from '../lib/bulletin.js';
+import { evaluate, resetForSituation, supportLine } from '../lib/checks.js';
+import { daysUntil, formatDate, resolveDates, unemploymentRemaining } from '../lib/dates.js';
+import CheckSheet from '../components/CheckSheet.jsx';
+import Icon from '../components/Icon.jsx';
+import JitPrompt, { nextPrompt } from '../components/JitPrompt.jsx';
+import PDMeter, { ExactDay } from '../components/PDMeter.jsx';
+import Sheet from '../components/Sheet.jsx';
 
-// Dates that are history, not deadlines.
-const NOT_DEADLINES = new Set(['h1bFirstStart', 'priorityDate', 'i140ApprovedOn', 'primaryI140ApprovedOn', 'i485FiledOn', 'optStart', 'stemOptStart', 'travelSignatureDate']);
+const days = (n) => (n === 0 ? 'Today' : `${n} day${n === 1 ? '' : 's'}`);
 
-function statusLine(profile) {
-  const d = profile.dates;
-  const key = profile.visa === 'F1' ? (d.stemOptEnd ? 'stemOptEnd' : d.optEnd ? 'optEnd' : 'programEnd') : 'i94Expiry';
-  return d[key] ? `${VISAS.fields[key].label}: ${formatDate(d[key])}` : null;
+// Icon and tint by what a check is about. Time-bound checks use the calendar icon (yellow soon, red past due).
+function look(c) {
+  const w = JSON.stringify(c.when);
+  if (w.includes('"datePast"')) return { icon: 'calendar', tone: 'over' };
+  if (/"(dateWithin|season|computed|pdCurrent|pdAmbiguous)"/.test(w)) return { icon: 'calendar', tone: 'warn' };
+  if (/travel|stamp|appointment/.test(c.id)) return { icon: 'plane', tone: '' };
+  if (/i94|passport|ssn|ead|account|uscis|sevp|i485|i140|itin|cards/.test(c.id)) return { icon: 'id-card', tone: '' };
+  return { icon: 'gavel', tone: '' };
 }
 
-function nextDeadline(profile, today = new Date()) {
-  return Object.entries(profile.dates)
-    .filter(([k, v]) => VISAS.fields[k]?.type === 'date' && v && !NOT_DEADLINES.has(k) && daysUntil(v, today) >= 0)
-    .map(([k, v]) => ({ k, v, days: daysUntil(v, today) }))
-    .sort((a, b) => a.days - b.days)[0];
+function CheckRow({ check, state, done, onOpen }) {
+  const { icon, tone } = done ? { icon: 'check', tone: 'done' } : look(check);
+  return (
+    <li>
+      <button type="button" className="row" onClick={() => onOpen(check.id)}>
+        <span className={`ico ${tone}`}><Icon name={icon} /></span>
+        <span className="row-text">{check.short}</span>
+        {!done && tone === 'over' && <span className="row-meta over">Past due</span>}
+        {state?.answer === 'no' && !done && <span className="row-meta">Not yet</span>}
+        <span className="chev"><Icon name="chevron-right" size={18} /></span>
+      </button>
+    </li>
+  );
+}
+
+// Nearest dated deadline (fields marked `deadline` in visas.json), from the resolved dates.
+function nextDeadline(dates, today) {
+  return Object.entries(dates)
+    .filter(([k]) => VISAS.fields[k]?.deadline)
+    .map(([k, v]) => ({ k, n: daysUntil(v, today) }))
+    .filter((d) => d.n >= 0)
+    .sort((a, b) => a.n - b.n)[0];
+}
+
+// F-1 on OPT / STEM OPT: unemployment days left when known, else days to the OPT / STEM end date.
+function f1Tile(profile, dates, today, deadline) {
+  const stem = profile.stage === 'stem_opt';
+  if (!stem && profile.stage !== 'opt') return null;
+  const used = profile.dates.unemploymentDaysUsed;
+  if (used != null && used !== '') {
+    return { label: 'Unemployment days', big: days(Math.max(0, unemploymentRemaining(used, stem))), sub: `left of ${stem ? 150 : 90}` };
+  }
+  const k = stem ? 'stemOptEnd' : 'optEnd';
+  if (dates[k] && k !== deadline?.k && daysUntil(dates[k], today) >= 0) {
+    return { label: VISAS.fields[k].label, big: days(daysUntil(dates[k], today)), sub: formatDate(profile.dates[k]) };
+  }
+  return null;
 }
 
 export default function Home() {
   const { profile, update } = useProfile();
-  const [showAll, setShowAll] = useState(false);
+  const [sel, setSel] = useState(null);
+  const [changing, setChanging] = useState(false);
   const [showDone, setShowDone] = useState(false);
-  const { open, done } = useMemo(() => evaluate(profile, CHECKS, new Date(), BULLETINS), [profile]);
-  const situations = VISAS.situations.filter((s) => s.visas.includes(profile.visa));
+  const today = useMemo(() => new Date(), []);
+  const dates = useMemo(() => resolveDates(profile.dates, VISAS.fields), [profile.dates]);
+  // Checks and the bulletin only ever see full dates; rawDates keeps what was entered (for the exact-day case).
+  const { open, done } = useMemo(
+    () => evaluate({ ...profile, dates, rawDates: profile.dates }, CHECKS, today, BULLETINS),
+    [profile, dates, today],
+  );
   const stage = stageOf(profile.visa, profile.stage);
-  const deadline = nextDeadline(profile);
-  const visible = showAll ? open : open.slice(0, 7);
+  const situations = VISAS.situations.filter((s) => s.visas.includes(profile.visa));
+  const active = situations.filter((s) => profile.situations.includes(s.id));
+  // "Not yet" keeps a check open, so the hero moves on to one that has not been put off.
+  const hero = open.find((c) => profile.checks[c.id]?.answer !== 'no') ?? open[0];
+  const rest = open.filter((c) => c !== hero);
+  const selected = CHECKS.find((c) => c.id === sel);
 
+  const deadline = nextDeadline(dates, today);
+  const pd = ['H1B', 'H4'].includes(profile.visa) && dates.priorityDate && dates.ebCategory && status(BULLETINS, dates.priorityDate, dates.ebCategory);
+  const f1 = profile.visa === 'F1' ? f1Tile(profile, dates, today, deadline) : null;
+  const prompt = nextPrompt(stage, profile);
+
+  const setDate = (k, v) => update((p) => ({ dates: { ...p.dates, [k]: v || undefined } }));
   const toggle = (id) =>
     update((p) => {
       const on = !p.situations.includes(id);
@@ -44,54 +98,123 @@ export default function Home() {
   const answer = (id, a) =>
     update((p) => ({ checks: { ...p.checks, [id]: a ? { answer: a, at: new Date().toISOString() } : undefined } }));
 
+  const rows = (list, isDone) =>
+    list.map((c) => <CheckRow key={c.id} check={c} state={profile.checks[c.id]} done={isDone} onOpen={setSel} />);
+
   return (
     <>
-      <header className="status">
-        <h1>{VISAS.visas[profile.visa].label} · {stage?.label}</h1>
-        <p>{statusLine(profile) ?? <Link to="/me">Add your dates to get countdowns</Link>}</p>
+      <header className="top">
+        <h1>Today</h1>
+        <span className="chip">{VISAS.visas[profile.visa].label} · {stage?.label}</span>
       </header>
 
-      <section>
-        <h2 className="eyebrow">What's going on?</h2>
-        <div className="chips">
-          {situations.map((s) => {
-            const on = profile.situations.includes(s.id);
-            return (
-              <button key={s.id} className={on ? 'chip on' : 'chip'} aria-pressed={on} onClick={() => toggle(s.id)}>
-                {s.label}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <div className="chip-row">
+        {active.map((s) => (
+          <button key={s.id} type="button" className="chip-btn" aria-label={`Remove: ${s.label}`} onClick={() => toggle(s.id)}>
+            <span className="chip">{s.label}<Icon name="x" size={14} /></span>
+          </button>
+        ))}
+        <button type="button" className="btn quiet" onClick={() => setChanging(true)}>Something changed?</button>
+      </div>
 
-      {deadline && (
-        <section className="card deadline">
-          <span className="eyebrow">Next deadline</span>
-          <strong>{VISAS.fields[deadline.k].label}</strong>
-          <span>{deadline.days === 0 ? 'Today' : `In ${deadline.days} days`} · {formatDate(deadline.v)}</span>
+      {hero ? (
+        <section className="hero" aria-labelledby="hero-title">
+          <span className="label">Do this next</span>
+          <h2 id="hero-title">
+            <button type="button" className="plain" onClick={() => setSel(hero.id)}>{hero.short}</button>
+          </h2>
+          <p>{supportLine(hero.why)}</p>
+          <div className="actions">
+            <button type="button" className="btn primary" onClick={() => answer(hero.id, 'yes')}>Yes, done</button>
+            <button type="button" className="btn outline" onClick={() => answer(hero.id, 'no')}>Not yet</button>
+          </div>
+        </section>
+      ) : (
+        <section className="card center">
+          <span className="ico done"><Icon name="check" /></span>
+          <h2>You're all caught up</h2>
+          <p className="muted">Nothing to check right now. If something changes, tap “Something changed?”.</p>
         </section>
       )}
 
-      <section>
-        <h2>Check now <span className="count">{open.length}</span></h2>
-        {open.length === 0 && <p className="card muted">Nothing to check right now. Tap what's going on above, or add dates in Me.</p>}
-        {visible.map((c) => (
-          <CheckCard key={c.id} check={c} state={profile.checks[c.id]} onAnswer={answer} />
-        ))}
-        {!showAll && open.length > visible.length && (
-          <button className="link" onClick={() => setShowAll(true)}>Show all {open.length}</button>
-        )}
-        {done.length > 0 && (
-          <button className="link" onClick={() => setShowDone((v) => !v)}>
-            {showDone ? 'Hide' : 'Show'} {done.length} done
-          </button>
-        )}
-        {showDone && done.map((c) => <CheckCard key={c.id} check={c} state={profile.checks[c.id]} onAnswer={answer} done />)}
-      </section>
+      {(deadline || pd || f1) && (
+        <div className="tiles">
+          {deadline && (
+            <section className="tile" aria-label="Next deadline">
+              <span className="label">Next deadline</span>
+              <span className="big">{days(deadline.n)}</span>
+              <span className="sub">{VISAS.fields[deadline.k].label} · {formatDate(profile.dates[deadline.k])}</span>
+            </section>
+          )}
+          {pd && (
+            <PDMeter
+              bulletins={BULLETINS}
+              raw={profile.dates.priorityDate}
+              pd={dates.priorityDate}
+              category={dates.ebCategory}
+              onExactDay={(iso) => setDate('priorityDate', iso)}
+            />
+          )}
+          {f1 && (
+            <section className="tile" aria-label={f1.label}>
+              <span className="label">{f1.label}</span>
+              <span className="big">{f1.big}</span>
+              <span className="sub">{f1.sub}</span>
+            </section>
+          )}
+        </div>
+      )}
 
-      {['H1B', 'H4'].includes(profile.visa) && profile.dates.priorityDate && profile.dates.ebCategory && (
-        <PDMeter bulletins={BULLETINS} pd={profile.dates.priorityDate} category={profile.dates.ebCategory} />
+      {rest.length > 0 && (
+        <section className="section">
+          <h2>Also to check</h2>
+          <ul className="list">{rows(rest, false)}</ul>
+        </section>
+      )}
+
+      {prompt && <JitPrompt key={prompt} fieldId={prompt} onSave={(v) => setDate(prompt, v)} onDismiss={() => update((p) => ({ dismissed: [...(p.dismissed ?? []), prompt] }))} />}
+
+      {done.length > 0 && (
+        <ul className="list">
+          <li>
+            <button type="button" className="row kv" aria-expanded={showDone} onClick={() => setShowDone((v) => !v)}>
+              <span className="row-text">Done · {done.length}</span>
+              <span className="chev"><Icon name={showDone ? 'chevron-down' : 'chevron-right'} size={18} /></span>
+            </button>
+          </li>
+          {showDone && rows(done, true)}
+        </ul>
+      )}
+
+      {selected && (
+        <CheckSheet
+          check={selected}
+          state={profile.checks[selected.id]}
+          done={done.some((c) => c.id === selected.id)}
+          onAnswer={answer}
+          onClose={() => setSel(null)}
+          extra={
+            selected.input === 'priorityDay' && /^\d{4}-\d{2}$/.test(profile.dates.priorityDate ?? '') ? (
+              <ExactDay month={profile.dates.priorityDate} onSave={(iso) => { setDate('priorityDate', iso); setSel(null); }} />
+            ) : null
+          }
+        />
+      )}
+
+      {changing && (
+        <Sheet title="What changed?" onClose={() => setChanging(false)}>
+          <p className="sheet-hint">Pick what is going on and we will bring up the right checks.</p>
+          <div className="chips">
+            {situations.map((s) => {
+              const on = profile.situations.includes(s.id);
+              return (
+                <button key={s.id} type="button" className="chip-btn" aria-pressed={on} onClick={() => toggle(s.id)}>
+                  <span className="chip">{on && <Icon name="check" size={14} />}{s.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Sheet>
       )}
     </>
   );

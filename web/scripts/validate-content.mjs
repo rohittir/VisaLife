@@ -1,7 +1,9 @@
 // Fails the build when a check or journey step is missing what the PRD requires (official sources, a review date),
-// or when a journey points at a step or stage that does not exist.
+// when a check has no short headline, when visas.json breaks its date/quick rules, or when a journey points at a
+// step or stage that does not exist.
 import { readdirSync, readFileSync } from 'node:fs';
 import { parseFrontmatter } from '../src/lib/steps.js';
+import { validateVisas } from '../src/lib/visas.js';
 
 const dir = new URL('../content/checks/', import.meta.url);
 const errors = [];
@@ -11,9 +13,10 @@ for (const f of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
   if (!Array.isArray(items)) errors.push(`${f}: must be an array of checks`);
   for (const c of items) {
     const where = `${f}#${c.id ?? '?'}`;
-    for (const k of ['id', 'visas', 'when', 'title', 'ask', 'why', 'links', 'sources', 'lastReviewed']) {
+    for (const k of ['id', 'visas', 'when', 'title', 'short', 'ask', 'why', 'links', 'sources', 'lastReviewed']) {
       if (c[k] == null || (Array.isArray(c[k]) && c[k].length === 0)) errors.push(`${where}: missing ${k}`);
     }
+    if (c.short && (c.short.length > 60 || c.short.trim().split(/\s+/).length > 8)) errors.push(`${where}: short must be at most 8 words and 60 characters`);
     if (seen.has(c.id)) errors.push(`${where}: duplicate id`);
     seen.add(c.id);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(c.lastReviewed ?? '')) errors.push(`${where}: lastReviewed must be YYYY-MM-DD`);
@@ -49,7 +52,9 @@ for (const f of readdirSync(stepDir).filter((f) => f.endsWith('.md'))) {
   }
 }
 
-const { visas } = JSON.parse(readFileSync(new URL('../content/visas.json', import.meta.url), 'utf8'));
+const visasJson = JSON.parse(readFileSync(new URL('../content/visas.json', import.meta.url), 'utf8'));
+errors.push(...validateVisas(visasJson).map((e) => `visas.json: ${e}`));
+const { visas } = visasJson;
 const journeyDir = new URL('../content/journeys/', import.meta.url);
 for (const f of readdirSync(journeyDir).filter((f) => f.endsWith('.json'))) {
   const j = JSON.parse(readFileSync(new URL(f, journeyDir), 'utf8'));
