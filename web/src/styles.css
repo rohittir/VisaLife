@@ -162,12 +162,18 @@ button:disabled { cursor: default; opacity: 0.55; }
 /* Forms */
 .field { display: grid; gap: 4px; border: 0; padding: 0; margin: 0; min-width: 0; }
 .field > span, .field > legend { font-size: 12px; line-height: 16px; color: var(--muted); padding: 0; }
+.field.ask > legend { font-size: 15px; line-height: 20px; color: var(--ink); padding: 0 0 8px; } /* a date question, not a label */
 .field.check { grid-template-columns: auto 1fr; align-items: center; gap: 12px; min-height: 44px; }
 .field.check input { width: 24px; height: 24px; min-height: 0; margin: 0; accent-color: var(--ink); }
 .field.check > span { font-size: 15px; line-height: 20px; color: var(--ink); }
-.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid var(--edge); border-radius: 12px; background: var(--tint); }
-.seg button { min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); font-weight: 500; }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+/* Still ahead / Already passed: two stacked radio rows. Selected = 2px ink border and a filled dot, never colour alone. */
+.radios, .radio-set { display: grid; gap: 8px; }
+.radio { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 12px; background: var(--card); border: 1px solid var(--edge); border-radius: 12px; cursor: pointer; }
+.radio.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.radio > span { display: grid; min-width: 0; }
+.radio small { font-size: 12px; line-height: 16px; color: var(--muted); }
+.radio input { appearance: none; flex: none; width: 24px; height: 24px; min-height: 0; margin: 0; padding: 0; border: 2px solid var(--edge); border-radius: 999px; background: var(--card); }
+.radio input:checked { border-color: var(--ink); background: var(--ink); box-shadow: inset 0 0 0 4px var(--card); }
 .pair { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; }
 input, select { font: inherit; font-size: 16px; min-height: 48px; padding: 0 12px; width: 100%; border: 1px solid var(--edge); border-radius: 12px; background: var(--card); color: var(--ink); }
 .form { display: grid; gap: 16px; }
@@ -188,10 +194,22 @@ details.adv .form { padding: 0 16px 16px; }
 .sheet-hint { color: var(--muted); }
 
 /* Floating navigation */
-.tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom)); width: calc(100% - 24px); max-width: 406px; background: var(--nav); border-radius: 18px; padding: 6px; z-index: 5; --ring: var(--on-nav); }
-.tabs ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-.tab { display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 52px; border-radius: 14px; text-decoration: none; color: var(--on-nav-2); font-size: 12px; line-height: 16px; font-weight: 500; }
-.tab.active { background: var(--action); color: var(--on-action); }
+.tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom)); width: calc(100% - 24px); max-width: 406px; background: var(--nav); border-radius: 18px; padding: 6px; z-index: 5; --ring: var(--on-nav); view-transition-name: tabs; } /* own layer: the page cross-fade leaves the bar still */
+.tabs ul { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+/* One orange pill under the labels; --i (set from the route) moves it a column at a time. */
+.pill { position: absolute; inset: 0 auto 0 0; width: calc((100% - 12px) / 4); border-radius: 14px; background: var(--action); transform: translateX(calc(var(--i, 0) * (100% + 4px))); transition: transform 360ms cubic-bezier(.32, .72, 0, 1); pointer-events: none; }
+.tab { position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 52px; border-radius: 14px; text-decoration: none; color: var(--on-nav-2); font-size: 12px; line-height: 16px; font-weight: 500; transition: color 200ms, transform 120ms; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.tab.active { color: var(--on-action); }
+.tab:active { transform: scale(.96); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; }
+/* The bar's own layer would cross-fade two pill positions: show the live bar only. */
+::view-transition-group(tabs), ::view-transition-new(tabs) { animation: none; }
+::view-transition-old(tabs) { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .pill, .tab { transition: none; }
+  .tab:active { transform: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 0s; }
+}
 
 /* Onboarding */
 .dots { display: flex; gap: 8px; align-items: center; }

@@ -18,11 +18,13 @@ export function inSeason(today, from, to) {
   return from <= to ? md >= from && md <= to : md >= from || md <= to;
 }
 export const isMonth = (v) => /^\d{4}-\d{2}$/.test(v ?? '');
+// A deadline answered "Already passed": the date itself was not given. Stored as is; resolveDates turns it into yesterday.
+export const PASSED = 'passed';
 export const monthEnd = (ym) => toISO(new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7), 0)));
 // What a month-and-year picker offers once we know whether a date has passed or is still ahead of `today`.
 // timingOf: "past" or "ahead" for an entered value (this month counts as ahead), null when empty.
 export const timingOf = (value, today = new Date()) =>
-  value ? (value.slice(0, 7) < toISO(today).slice(0, 7) ? 'past' : 'ahead') : null;
+  value ? (value === PASSED || value.slice(0, 7) < toISO(today).slice(0, 7) ? 'past' : 'ahead') : null;
 // Years nearest to today first: this year and `back` years before it, or this year and nine after it.
 export const yearChoices = (when, today = new Date(), back = 10) => {
   const y = today.getUTCFullYear();
@@ -37,29 +39,44 @@ export const monthChoices = (when, year, today = new Date()) => {
 };
 // "This month", "Next month", "5 months" for a month-only date: a day count would claim precision we do not have.
 export function monthsLabel(ym, today = new Date()) {
+  if (ym === PASSED) return 'Already passed';
   const n = (+ym.slice(0, 4) - today.getUTCFullYear()) * 12 + (+ym.slice(5, 7) - (today.getUTCMonth() + 1));
-  return n <= 0 ? 'This month' : n === 1 ? 'Next month' : `${n} months`;
+  return Number.isNaN(n) ? '' : n <= 0 ? 'This month' : n === 1 ? 'Next month' : `${n} months`;
 }
 // "May 2014" for YYYY-MM, "14 May 2014" style for a full date.
 export const formatDate = (iso) =>
-  isMonth(iso)
+  iso === PASSED
+    ? 'Already passed'
+    : isMonth(iso)
     ? parseISO(`${iso}-01`).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
     : parseISO(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
 // Profile dates -> full ISO dates for checks, bulletin and countdowns. `fields` is visas.json's `fields`: a month-only
 // value (YYYY-MM) becomes the 1st or the last day of its month by the field's `assume`, always the conservative side.
-// optStart / stemOptStart are not asked: they follow from the end date (OPT 12 months, STEM OPT 24 months).
-export function resolveDates(dates = {}, fields = {}) {
+// "passed" (no date given) becomes yesterday: it counts as past, and only checks that ask "has it passed" react to it.
+// optStart / stemOptStart are not asked: they follow from the end date (OPT 12 months, STEM OPT 24 months), which a
+// "passed" end date cannot give.
+export function resolveDates(dates = {}, fields = {}, today = new Date()) {
   const out = {};
   for (const [k, v] of Object.entries(dates)) {
     if (!v) continue;
-    out[k] = isMonth(v) ? (fields[k]?.assume === 'end' ? monthEnd(v) : `${v}-01`) : v;
+    out[k] = v === PASSED ? addDays(toISO(today), -1) : isMonth(v) ? (fields[k]?.assume === 'end' ? monthEnd(v) : `${v}-01`) : v;
   }
   delete out.optStart;
   delete out.stemOptStart;
-  if (out.optEnd) out.optStart = addMonths(addDays(out.optEnd, 1), -12);
-  if (out.stemOptEnd) out.stemOptStart = addMonths(addDays(out.stemOptEnd, 1), -24);
+  if (out.optEnd && dates.optEnd !== PASSED) out.optStart = addMonths(addDays(out.optEnd, 1), -12);
+  if (out.stemOptEnd && dates.stemOptEnd !== PASSED) out.stemOptStart = addMonths(addDays(out.stemOptEnd, 1), -24);
   return out;
+}
+
+// Dates read back from localStorage, which can be edited or left by an older version: keep a value of a date field only
+// when it is YYYY-MM, YYYY-MM-DD or (for deadlines) "passed". Anything else would throw inside resolveDates and blank Today.
+const SAFE_DATE = /^\d{4}-\d{2}(-\d{2})?$/;
+export function cleanDates(dates, fields) {
+  const ok = (k, v) =>
+    typeof v === 'string' &&
+    ((v === PASSED && fields[k].deadline) || (SAFE_DATE.test(v) && !Number.isNaN(parseISO(isMonth(v) ? `${v}-01` : v).getTime())));
+  return Object.fromEntries(Object.entries(dates ?? {}).filter(([k, v]) => fields[k]?.type !== 'date' || ok(k, v)));
 }
 
 // H-1B: six years of H-1B time; full days spent outside the US can be recaptured (8 CFR 214.2(h)(13)(iii)(C)).

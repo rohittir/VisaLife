@@ -77,7 +77,12 @@ VisaLife/
 - **Routing:** `/` (onboarding if no profile), `/home`, `/journey`, `/policy`, `/me`, `/auth/callback`.
 - **Layout:** `main` is a 430px max-width column; `BottomTabs` is a floating rounded bar (12px
   inset, safe-area aware) with Today (`/home`), Journey, Policy, Me; `@media (min-width: 600px)`
-  centers the column with a neutral background.
+  centers the column with a neutral background. One orange `.pill` slides under the labels
+  (`translateX` by `--i`, set from `tabIndex(pathname)` in `lib/tabs.js`; no animation on first
+  paint); tabs get press feedback and a `viewTransition` page cross-fade, and the shell scrolls
+  to the top on a tab change. The router is a data router (`createBrowserRouter`) because
+  `<NavLink viewTransition>` is ignored by `<BrowserRouter>`. `prefers-reduced-motion` turns the
+  motion off.
 - **Design tokens:** custom properties on `:root` in `styles.css` (roles, not colors: `--page`,
   `--card`, `--ink`, `--muted`, `--action`, `--hero`, `--done-*`, `--warn-*`, `--over-*`, `--nav`),
   redefined under `prefers-color-scheme: dark`. `src/lib/contrast.test.js` reads them and asserts
@@ -89,20 +94,27 @@ VisaLife/
 - **State:** `ProfileProvider` holds the profile in React state, persists to
   `localStorage["visalife.profile"]` on every change, and exposes `update(patch | fn)` and `reset()`.
   Profile: `{v, nationality, visa, stage, dates, flags, situations, checks, dismissed, updatedAt}`.
-  `dates[k]` is `YYYY-MM-DD` or, for month-precision fields, `YYYY-MM`; `dismissed` lists the
-  fields whose "add this date" prompt was dismissed. `optStart`/`stemOptStart` are never stored.
+  `dates[k]` is `YYYY-MM-DD` or, for month-precision fields, `YYYY-MM`, or `passed` for a
+  `deadline` field answered "Already passed"; `dismissed` lists the fields whose "add this date"
+  prompt was skipped (and `day:<field>` for a skipped exact-day card). `load()` drops any
+  date-field value that is none of these (`cleanDates` in `dates.js`).
+  `optStart`/`stemOptStart` are never stored.
 - **Dates:** `visas.json` declares per field `precision` (`day`|`month`), `assume` (`start`|`end`,
   month fields), `group`, `deadline`, `unlock` (the just-in-time prompt text) and per stage `quick`
-  (at most two ids asked in onboarding). `resolveDates(dates, VISAS.fields)` runs once in Home; its
+  (at most two ids asked in onboarding; `[]` for stages whose dates Today asks one at a time),
+  optional `question` (the legend of the date control), `timing: "ahead"` (pickers only, no
+  passed/ahead choice) and `skipWhen` (a check condition: when it holds Today does not ask for the
+  field; `nextPrompt` in `lib/prompts.js` evaluates it with `matches()` on the resolved dates). `resolveDates(dates, VISAS.fields, today)` runs once in Home: `passed`
+  becomes yesterday (so `datePast` checks fire) and never derives `optStart`/`stemOptStart`. Its
   result goes to `checks.evaluate`, the bulletin status and the countdowns, together with
   `rawDates` (what was entered) so `{pdAmbiguous}` can tell a month-only priority date from an
   exact one. `ambiguity()` in `bulletin.js` is true when a chart's cut-off falls in the entered
   month after its first day; the tile and the `gc-pd-exact-day` check then ask for the day.
   Expiry fields (`deadline`) are month precision with `assume: "end"`; Home shows one exact-day
-  row when such a value equals the current month. `FieldInput`'s month picker asks "Already
-  passed" or "Still ahead" first for `deadline` fields and narrows years and months with the
-  pure `timingOf`, `yearChoices` and `monthChoices` in `dates.js`; `monthsLabel` renders
-  month-only countdowns.
+  card (with Skip) when such a value equals the current month. `FieldInput`'s month picker is a
+  `<fieldset>` of two radio rows ("Still ahead", "Already passed") for `deadline` fields, with the
+  pickers under the chosen row; it narrows years and months with the pure `timingOf`,
+  `yearChoices` and `monthChoices` in `dates.js`; `monthsLabel` renders month-only countdowns.
 - **Content pipeline:** `import.meta.glob('../content/steps/*.md', {query:'?raw', eager:true})`
   parsed with a 15-line frontmatter splitter + `marked` for the body; checks and journeys are
   plain JSON imports. A Vite plugin step (`scripts/validate-content.mjs`, run in `prebuild`)
@@ -304,7 +316,7 @@ sheet. The build script requires `short`.
 | Method | Path | Request | Response |
 |---|---|---|---|
 | GET | `/me` | — | `200` profile or `{}` |
-| PUT | `/me` | `{visa, stage, dates, flags, situations, checks, dismissed, clientUpdatedAt}` (allowlisted keys; `YYYY-MM-DD` or `YYYY-MM` dates; ≤ 32 KB) | `200` stored profile |
+| PUT | `/me` | `{visa, stage, dates, flags, situations, checks, dismissed, clientUpdatedAt}` (allowlisted keys; `YYYY-MM-DD`, `YYYY-MM` or `passed` dates; ≤ 32 KB) | `200` stored profile |
 | DELETE | `/me` | — | `204` |
 | any | other | — | `404 {error}`; auth failures `401`; validation `400 {error}` |
 

@@ -9,7 +9,12 @@ export function validateVisas({ visas, fields }) {
       if (!['day', 'month'].includes(f.precision)) errors.push(`${at}: precision must be "day" or "month"`);
       if (f.precision === 'month' && !['start', 'end'].includes(f.assume)) errors.push(`${at}: month fields need assume "start" or "end"`);
       if (f.precision === 'day' && 'assume' in f) errors.push(`${at}: assume only applies to month fields`);
-    } else if ('precision' in f || 'assume' in f) errors.push(`${at}: precision/assume only apply to date fields`);
+    } else if ('precision' in f || 'assume' in f || 'timing' in f) errors.push(`${at}: precision/assume/timing only apply to date fields`);
+    // "ahead": always a future date (a leave date), so the control shows the pickers and no "already passed" choice.
+    if ('timing' in f && f.timing !== 'ahead') errors.push(`${at}: timing must be "ahead"`);
+    if ('question' in f && !(typeof f.question === 'string' && f.question)) errors.push(`${at}: question must be a non-empty string`);
+    // A condition in the checks' format (checks.js `matches`): when it holds, Today does not ask for this field.
+    if ('skipWhen' in f && !(f.skipWhen && typeof f.skipWhen === 'object' && !Array.isArray(f.skipWhen))) errors.push(`${at}: skipWhen must be a condition object`);
     if (f.type === 'select' && !(f.options?.length > 0)) errors.push(`${at}: select needs options`);
     if (f.type !== 'number' && !GROUPS.includes(f.group)) errors.push(`${at}: group must be one of ${GROUPS.join(', ')}`);
   }
