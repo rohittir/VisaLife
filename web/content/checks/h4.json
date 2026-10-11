@@ -16,8 +16,8 @@
     "short": "Are you sure nothing counts as work?",
     "ask": "Are you sure nothing you do counts as work: no freelancing, no paid remote work for an Indian company, no monetised content, no trading run as a business?",
     "why": "Work without authorisation is a status violation that can surface years later at the I-485 stage. Volunteering and study are fine.",
-    "links": [{ "label": "H-1B and H-4 overview (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations" }],
-    "sources": ["https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations"], "lastReviewed": "2026-10-10"
+    "links": [{ "label": "H-1B and H-4 overview (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" }],
+    "sources": ["https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"], "lastReviewed": "2026-10-10"
   },
   {
     "id": "h4-extension-with-primary", "visas": ["H4"], "priority": 1,

@@ -83,8 +83,8 @@
     "short": "Is your I-20 travel signature recent?",
     "ask": "Is the travel signature on page 2 of your I-20 less than 12 months old (6 months if you are on OPT or STEM OPT), and if on OPT will you carry your EAD card and a job letter?",
     "why": "Without a recent DSO signature CBP can refuse entry or send you to secondary inspection; on OPT officers expect proof of employment.",
-    "links": [{ "label": "Travel on F-1 (Study in the States)", "url": "https://studyinthestates.dhs.gov/students/travel" }],
-    "sources": ["https://studyinthestates.dhs.gov/students/travel"], "lastReviewed": "2026-10-10"
+    "links": [{ "label": "Travel on F-1 (Study in the States)", "url": "https://studyinthestates.dhs.gov/students/study/traveling-as-an-f-or-m-student" }],
+    "sources": ["https://studyinthestates.dhs.gov/students/study/traveling-as-an-f-or-m-student"], "lastReviewed": "2026-10-10"
   },
   {
     "id": "f1-grace-ending", "visas": ["F1"], "priority": 1,
