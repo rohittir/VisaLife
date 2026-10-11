@@ -46,7 +46,7 @@
     "why": "A timely filed STEM extension gives you an automatic 180-day work extension while USCIS decides. Filing after the EAD expires is not possible.",
     "links": [
       { "label": "STEM OPT extension (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-extension-for-stem-students-stem-opt" },
-      { "label": "STEM designated degree list (ICE)", "url": "https://www.ice.gov/sevis/stem-list" }
+      { "label": "STEM designated degree list (Study in the States)", "url": "https://studyinthestates.dhs.gov/stem-opt-hub/additional-resources/eligible-cip-codes-for-the-stem-opt-extension" }
     ],
     "sources": ["https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-extension-for-stem-students-stem-opt"], "lastReviewed": "2026-10-10"
   },

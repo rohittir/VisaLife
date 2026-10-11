@@ -1,0 +1,12 @@
+{
+  "visa": "H4",
+  "stages": [
+    { "id": "no_ead", "steps": ["h4-status-basics", "h4-extend-with-primary", "h4-work-rules", "h4-study", "h4-taxes-itin", "h4-travel"] },
+    { "id": "ead_eligible", "steps": ["h4-ead-eligibility", "h4-ead-apply"] },
+    { "id": "ead_working", "steps": ["h4-ead-renewal", "h4-own-status"] },
+    { "id": "i485_derivative", "steps": ["h4-i485-file", "h4-i485-ead-ap", "h4-i485-keep-h4", "h4-i485-cspa"] }
+  ],
+  "groups": [
+    { "label": "Life events", "steps": ["h4-life-child-21", "h4-life-primary-laid-off", "h4-life-divorce-death"] }
+  ]
+}
