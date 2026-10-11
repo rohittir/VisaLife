@@ -2,6 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     { "name": "web", "runtimeExecutable": "npm", "runtimeArgs": ["-w", "web", "run", "dev"], "port": 5173 },
-    { "name": "web-5174", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "web", "--port", "5174", "--strictPort"], "port": 5174 }
+    { "name": "web-5174", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "web", "--port", "5174", "--strictPort"], "port": 5174 },
+    { "name": "web-5175", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "web", "--port", "5175", "--strictPort"], "port": 5175 }
   ]
 }

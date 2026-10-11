@@ -17,10 +17,10 @@ export default function Sparkline({ points, label, width = 300, height = 56 }) {
   return (
     <figure className="spark">
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label}, ${month(first)} to ${month(last)}`}>
-        <path d={d} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={d} fill="none" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         {t.map((v, i) =>
           v == null ? null : (
-            <circle key={points[i].month} cx={x(i)} cy={y(v)} r="3" fill="var(--primary)">
+            <circle key={points[i].month} cx={x(i)} cy={y(v)} r="3" fill="var(--ink)">
               <title>{`${month(points[i].month)}: ${formatDate(points[i].cutoff)}`}</title>
             </circle>
           ),

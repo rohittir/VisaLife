@@ -1,6 +1,6 @@
 // Evaluates content/checks/*.json rules against a profile. Pure; `today` is injectable for tests.
 import { daysUntil, inSeason, sameMonth, h1bSixYearEnd, parseISO, unemploymentRemaining } from './dates.js';
-import { status } from './bulletin.js';
+import { ambiguity, status } from './bulletin.js';
 
 function computed(name, profile, today) {
   const d = profile.dates || {};
@@ -48,7 +48,17 @@ export function matches(when, profile, today, bulletins = []) {
     if ('lte' in when && !(v <= when.lte)) return false;
     return true;
   }
-  if (when.pdCurrent) return status(bulletins, d.priorityDate, d.ebCategory)?.[when.pdCurrent] === 'current';
+  // pdCurrent / pdAmbiguous take a chart name, or "uscis" for the chart USCIS accepts for I-485 filing this month.
+  if (when.pdCurrent) {
+    const s = status(bulletins, d.priorityDate, d.ebCategory);
+    return s?.[when.pdCurrent === 'uscis' ? s.chartUsedByUscis : when.pdCurrent] === 'current';
+  }
+  // `rawDates` is the profile as entered: only a month-only priority date can be ambiguous.
+  if (when.pdAmbiguous) {
+    const s = status(bulletins, d.priorityDate, d.ebCategory);
+    const a = ambiguity(bulletins, profile.rawDates?.priorityDate, d.ebCategory);
+    return Boolean(s && a?.[when.pdAmbiguous === 'uscis' ? s.chartUsedByUscis : when.pdAmbiguous]);
+  }
   if (when.followUpOf) return profile.checks?.[when.followUpOf]?.answer === 'no';
   return false;
 }
@@ -90,4 +100,13 @@ export function resetForSituation(checks, situation, state = {}) {
   }
   for (const c of checks) if (c.when?.followUpOf && reset.has(c.when.followUpOf)) delete next[c.id];
   return next;
+}
+
+// One supporting line for the Home hero: the first sentence of `why`, cut at a word boundary near `max` characters.
+export function supportLine(why, max = 90) {
+  const first = /^.*?[.!?](?=\s|$)/.exec(why)?.[0] ?? why;
+  if (first.length <= max) return first;
+  let cut = first.slice(0, first.lastIndexOf(' ', max - 1));
+  if (cut.split('(').length > cut.split(')').length) cut = cut.slice(0, cut.lastIndexOf('(')); // never stop inside a bracket
+  return `${cut.replace(/[\s,;:]+$/, '')}…`;
 }

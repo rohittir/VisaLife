@@ -1,4 +1,4 @@
-// All date math in one place. Dates are ISO strings (YYYY-MM-DD); `today` is a Date.
+// All date math in one place. Dates are ISO strings (YYYY-MM-DD, or YYYY-MM for month-only profile values); `today` is a Date.
 const DAY = 86400000;
 
 export const parseISO = (s) => new Date(`${s}T00:00:00Z`);
@@ -17,8 +17,29 @@ export function inSeason(today, from, to) {
   const md = toISO(startOfDay(today)).slice(5);
   return from <= to ? md >= from && md <= to : md >= from || md <= to;
 }
+export const isMonth = (v) => /^\d{4}-\d{2}$/.test(v ?? '');
+export const monthEnd = (ym) => toISO(new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7), 0)));
+// "May 2014" for YYYY-MM, "14 May 2014" style for a full date.
 export const formatDate = (iso) =>
-  parseISO(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  isMonth(iso)
+    ? parseISO(`${iso}-01`).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
+    : parseISO(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+// Profile dates -> full ISO dates for checks, bulletin and countdowns. `fields` is visas.json's `fields`: a month-only
+// value (YYYY-MM) becomes the 1st or the last day of its month by the field's `assume`, always the conservative side.
+// optStart / stemOptStart are not asked: they follow from the end date (OPT 12 months, STEM OPT 24 months).
+export function resolveDates(dates = {}, fields = {}) {
+  const out = {};
+  for (const [k, v] of Object.entries(dates)) {
+    if (!v) continue;
+    out[k] = isMonth(v) ? (fields[k]?.assume === 'end' ? monthEnd(v) : `${v}-01`) : v;
+  }
+  delete out.optStart;
+  delete out.stemOptStart;
+  if (out.optEnd) out.optStart = addMonths(addDays(out.optEnd, 1), -12);
+  if (out.stemOptEnd) out.stemOptStart = addMonths(addDays(out.stemOptEnd, 1), -24);
+  return out;
+}
 
 // H-1B: six years of H-1B time; full days spent outside the US can be recaptured (8 CFR 214.2(h)(13)(iii)(C)).
 export const h1bSixYearEnd = (firstStart, outsideDays = 0) => addDays(addMonths(firstStart, 72), Number(outsideDays) || 0);

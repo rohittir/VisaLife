@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const KEY = 'visalife.profile';
 const Ctx = createContext(null);
 
-export const EMPTY = { v: 1, nationality: 'IN', visa: null, stage: null, dates: {}, flags: {}, situations: [], checks: {}, updatedAt: null };
+export const EMPTY = { v: 1, nationality: 'IN', visa: null, stage: null, dates: {}, flags: {}, situations: [], checks: {}, dismissed: [], updatedAt: null };
 
 function load() {
   try {

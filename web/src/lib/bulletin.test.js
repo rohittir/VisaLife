@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { latest, status, movement, estimate } from './bulletin.js';
+import { latest, status, movement, estimate, ambiguity, gap, progress } from './bulletin.js';
 
 const dir = new URL('../../../data/visa-bulletin/', import.meta.url);
 const bulletins = readdirSync(dir)
@@ -62,4 +62,41 @@ test('estimate: last 12 months pace, 0 when current, null when not moving forwar
   assert.equal(estimate(mk('U', 'U'), '2014-01-01', 'EB2'), null);
   const real = estimate(bulletins, '2014-05-01', 'EB2');
   assert.ok(real > 0 && real < 100, String(real));
+});
+
+const sep = [{ month: '2026-09', finalAction: { EB2: 'U', EB3: '2014-01-17' }, datesForFiling: { EB2: '2015-01-15', EB3: '2015-01-01' }, uscisChart: 'finalAction' }];
+
+test('ambiguity: the cut-off month equals the entered month and the day decides', () => {
+  assert.deepEqual(ambiguity(sep, '2014-01', 'EB3'), { finalAction: true, datesForFiling: false });
+  assert.deepEqual(ambiguity(sep, '2015-01', 'EB2'), { finalAction: false, datesForFiling: true });
+  // A cut-off on the 1st leaves no qualifying day: not ambiguous. U and other months are not ambiguous either.
+  assert.deepEqual(ambiguity(sep, '2015-01', 'EB3'), { finalAction: false, datesForFiling: false });
+  assert.deepEqual(ambiguity(sep, '2014-05', 'EB2'), { finalAction: false, datesForFiling: false });
+  // Exact days and missing data are never "ambiguous".
+  assert.equal(ambiguity(sep, '2014-01-10', 'EB3'), null);
+  assert.equal(ambiguity(sep, undefined, 'EB3'), null);
+  assert.equal(ambiguity([], '2014-01', 'EB3'), null);
+});
+
+test('ambiguity: the month-end assumption never claims current, an exact day decides', () => {
+  assert.equal(status(sep, '2014-01-31', 'EB3').finalAction, 'not current');
+  assert.equal(status(sep, '2014-01-10', 'EB3').finalAction, 'current');
+});
+
+test('gap in years and months, null when the chart has no date', () => {
+  assert.deepEqual(gap(sep, '2015-01-31', 'EB3'), { years: 1, months: 0, behind: true, same: false });
+  assert.deepEqual(gap(sep, '2019-05-31', 'EB3'), { years: 5, months: 4, behind: true, same: false });
+  assert.deepEqual(gap(sep, '2014-05-31', 'EB2', 'datesForFiling'), { years: 0, months: 8, behind: false, same: false });
+  assert.deepEqual(gap(sep, '2014-01-31', 'EB3'), { years: 0, months: 0, behind: false, same: true });
+  assert.equal(gap(sep, '2014-05-31', 'EB2'), null);
+});
+
+test('progress: share of the way the cut-off came toward your date, 1 once current', () => {
+  const mk = (...fa) => fa.map((c, i) => ({ month: `2026-0${i + 1}`, finalAction: { EB2: c }, datesForFiling: { EB2: c } }));
+  assert.equal(progress(mk('2013-01-01', '2013-04-01', '2013-07-01'), '2014-01-01', 'EB2'), 181 / 365);
+  assert.equal(progress(mk('2013-01-01', 'C'), '2014-01-01', 'EB2'), 1);
+  assert.equal(progress(mk('2013-01-01', '2013-04-01'), '2012-01-01', 'EB2'), 1);
+  assert.equal(progress(mk('U', 'U'), '2014-01-01', 'EB2'), null);
+  const p = progress(bulletins, '2014-05-31', 'EB2');
+  assert.ok(p >= 0 && p <= 1, String(p));
 });

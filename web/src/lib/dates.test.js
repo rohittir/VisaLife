@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import * as d from './dates.js';
 
 const today = new Date('2026-10-10T00:00:00Z');
@@ -37,4 +38,43 @@ test('season handles year wrap', () => {
   assert.equal(d.inSeason(today, '02-01', '03-31'), false);
   assert.equal(d.inSeason(new Date('2026-03-05T00:00:00Z'), '02-01', '03-31'), true);
   assert.equal(d.inSeason(new Date('2026-01-05T00:00:00Z'), '12-15', '01-15'), true);
+});
+
+const fields = JSON.parse(readFileSync(new URL('../../content/visas.json', import.meta.url), 'utf8')).fields;
+
+test('month-only values resolve to the conservative end of their month, full dates pass through', () => {
+  const r = d.resolveDates(
+    { passportExpiry: '2027-06', priorityDate: '2014-05', i140ApprovedOn: '2024-02', h1bFirstStart: '2021-10', travelSignatureDate: '2026-03', i94Expiry: '2027-03-05', priorityDate2: '', unknown: '2020-01' },
+    fields,
+  );
+  assert.equal(r.passportExpiry, '2027-06-01'); // start: warn earlier
+  assert.equal(r.h1bFirstStart, '2021-10-01'); // start: six-year end comes earlier
+  assert.equal(r.travelSignatureDate, '2026-03-01');
+  assert.equal(r.priorityDate, '2014-05-31'); // end: never claim current
+  assert.equal(r.i140ApprovedOn, '2024-02-29'); // end, leap year
+  assert.equal(r.i94Expiry, '2027-03-05');
+  assert.equal(r.unknown, '2020-01-01'); // not in visas.json: treated as start
+  assert.ok(!('priorityDate2' in r));
+  assert.equal(d.resolveDates({ priorityDate: '2014-05-12' }, fields).priorityDate, '2014-05-12');
+});
+
+test('every month field declares assume and the choice is the conservative side', () => {
+  const month = Object.entries(fields).filter(([, f]) => f.precision === 'month');
+  assert.deepEqual(month.map(([k]) => k).sort(), ['h1bFirstStart', 'i140ApprovedOn', 'i485FiledOn', 'passportExpiry', 'priorityDate', 'primaryI140ApprovedOn', 'travelSignatureDate', 'visaStampExpiry'].sort());
+  const end = month.filter(([, f]) => f.assume === 'end').map(([k]) => k).sort();
+  assert.deepEqual(end, ['i140ApprovedOn', 'i485FiledOn', 'primaryI140ApprovedOn', 'priorityDate']);
+});
+
+test('OPT and STEM start are derived from the end date, never read from the profile', () => {
+  const r = d.resolveDates({ optEnd: '2026-05-31', stemOptEnd: '2028-02-29', optStart: '1999-01-01', stemOptStart: '1999-01-01' }, fields);
+  assert.equal(r.optStart, '2025-06-01');
+  assert.equal(r.stemOptStart, '2026-03-01');
+  assert.equal(d.stemDates(r.stemOptStart).final, '2028-03-01');
+  assert.ok(!('optStart' in d.resolveDates({ stemOptEnd: '2028-02-29' }, fields)));
+});
+
+test('month values format as "May 2014"', () => {
+  assert.equal(d.formatDate('2014-05'), 'May 2014');
+  assert.equal(d.formatDate('2014-05-12'), 'May 12, 2014');
+  assert.ok(d.isMonth('2014-05') && !d.isMonth('2014-05-12') && !d.isMonth(undefined));
 });

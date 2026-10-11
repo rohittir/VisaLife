@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { evaluate, resetForSituation } from './checks.js';
+import { evaluate, resetForSituation, supportLine } from './checks.js';
+import { resolveDates } from './dates.js';
 
 const dir = new URL('../../content/checks/', import.meta.url);
 const checks = readdirSync(dir)
@@ -47,13 +48,15 @@ test('monthly checks come back each month', () => {
   assert.ok(!ids(evaluate(p, checks, today)).includes('gc-bulletin-monthly'));
 });
 
-test('pdCurrent uses the bulletin cut-off for the profile category', () => {
-  const bulletins = [{ month: '2026-09', finalAction: { EB2: 'U', EB3: '2014-01-01' }, datesForFiling: { EB2: '2015-01-15', EB3: '2015-01-15' }, uscisChart: 'finalAction' }];
+test('the filing check follows the chart USCIS accepts, for the profile category', () => {
+  const bulletin = (uscisChart) => [{ month: '2026-09', finalAction: { EB2: 'U', EB3: '2014-01-01' }, datesForFiling: { EB2: '2015-01-15', EB3: '2015-01-15' }, uscisChart }];
   const p = { ...h1b, stage: 'gc_waiting_pd', dates: { priorityDate: '2014-05-01', ebCategory: 'EB2' } };
-  assert.ok(ids(evaluate(p, checks, today, bulletins)).includes('gc-pd-current-filing'));
+  assert.ok(ids(evaluate(p, checks, today, bulletin('datesForFiling'))).includes('gc-pd-current-filing'));
+  // Dates for Filing is current, but USCIS is on Final Action (unavailable): not current for filing.
+  assert.ok(!ids(evaluate(p, checks, today, bulletin('finalAction'))).includes('gc-pd-current-filing'));
   assert.ok(!ids(evaluate(p, checks, today)).includes('gc-pd-current-filing'));
   p.dates = { priorityDate: '2015-01-15', ebCategory: 'EB2' };
-  assert.ok(!ids(evaluate(p, checks, today, bulletins)).includes('gc-pd-current-filing'));
+  assert.ok(!ids(evaluate(p, checks, today, bulletin('datesForFiling'))).includes('gc-pd-current-filing'));
 });
 
 test('visa filter and F-1 computed unemployment', () => {
@@ -61,4 +64,53 @@ test('visa filter and F-1 computed unemployment', () => {
   const r = ids(evaluate(f1, checks, today));
   assert.ok(r.includes('f1-unemployment'));
   assert.ok(!r.some((id) => id.startsWith('h1b-')));
+});
+
+const fields = JSON.parse(readFileSync(new URL('../../content/visas.json', import.meta.url), 'utf8')).fields;
+const bulletin = (fa, dff, chart = 'datesForFiling') => [{ month: '2026-09', finalAction: { EB2: fa }, datesForFiling: { EB2: dff }, uscisChart: chart }];
+
+test('month-only dates evaluate through resolveDates: passport 2027-06 and priority date 2014-05', () => {
+  const raw = { passportExpiry: '2027-06', priorityDate: '2014-05', ebCategory: 'EB2' };
+  const p = { ...h1b, stage: 'gc_waiting_pd', dates: resolveDates(raw, fields), rawDates: raw };
+  const r = ids(evaluate(p, checks, today, bulletin('U', '2015-01-15')));
+  // 2027-06-01 is 234 days away from 2026-10-10, inside the 365-day passport window.
+  assert.ok(r.includes('common-passport-expiring'));
+  // PD 2014-05-31 is before the 2015-01-15 Dates for Filing cut-off, so the filing check shows; no day is ambiguous.
+  assert.ok(r.includes('gc-pd-current-filing'));
+  assert.ok(!r.includes('gc-pd-exact-day'));
+  const later = { ...p, dates: resolveDates({ ...raw, passportExpiry: '2028-06' }, fields) };
+  assert.ok(!ids(evaluate(later, checks, today, bulletin('U', '2015-01-15'))).includes('common-passport-expiring'));
+});
+
+test('priority date in the cut-off month: the exact-day check replaces the current/not-current claim', () => {
+  const raw = { priorityDate: '2015-01', ebCategory: 'EB2' };
+  const p = { ...h1b, stage: 'gc_waiting_pd', dates: resolveDates(raw, fields), rawDates: raw };
+  const b = bulletin('U', '2015-01-15');
+  const r = ids(evaluate(p, checks, today, b));
+  assert.ok(r.includes('gc-pd-exact-day'));
+  assert.ok(!r.includes('gc-pd-current-filing')); // month end is not before the 15th: never over-claims
+  // Once the exact day is added the ambiguity is gone and the answer is definite.
+  const exact = { ...raw, priorityDate: '2015-01-10' };
+  const q = { ...p, dates: resolveDates(exact, fields), rawDates: exact };
+  const r2 = ids(evaluate(q, checks, today, b));
+  assert.ok(!r2.includes('gc-pd-exact-day'));
+  assert.ok(r2.includes('gc-pd-current-filing'));
+});
+
+test('supportLine: first sentence, trimmed at a word boundary', () => {
+  assert.equal(supportLine('The I-94 controls how long you may stay. Officers sometimes cut it.'), 'The I-94 controls how long you may stay.');
+  const long = 'Errors on the notice are easier to fix early, and you will need the copy for every future extension and to carry the date.';
+  const s = supportLine(long);
+  assert.ok(s.length <= 91 && s.endsWith('…') && !s.includes('  '), s);
+  assert.equal(supportLine('No full stop here'), 'No full stop here');
+  const bracket = 'Unreported employment counts as unemployment, and 90 days of unemployment on OPT (150 with STEM) ends your status.';
+  assert.equal(supportLine(bracket), 'Unreported employment counts as unemployment, and 90 days of unemployment on OPT…');
+});
+
+test('the exact-day check is about the chart USCIS accepts', () => {
+  const raw = { priorityDate: '2015-01', ebCategory: 'EB2' };
+  const p = { ...h1b, stage: 'gc_waiting_pd', dates: resolveDates(raw, fields), rawDates: raw };
+  // Cut-off day in the entered month on Dates for Filing, but USCIS is on Final Action (U): nothing to decide.
+  assert.ok(!ids(evaluate(p, checks, today, bulletin('U', '2015-01-15', 'finalAction'))).includes('gc-pd-exact-day'));
+  assert.ok(ids(evaluate(p, checks, today, bulletin('2015-01-15', 'U', 'finalAction'))).includes('gc-pd-exact-day'));
 });

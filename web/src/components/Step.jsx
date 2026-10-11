@@ -1,23 +1,23 @@
+import Icon from './Icon.jsx';
 import { sourceLabel } from '../lib/steps.js';
 
-export default function Step({ step, done, onToggle }) {
+// The expanded body of a journey step (title, done toggle and expand control live on the row in Journey.jsx).
+export default function Step({ step }) {
   return (
-    <article className={`card check step${done ? ' done' : ''}`}>
-      <h3>{step.title}</h3>
-      {step.verify && <p className="badge">Rules changed recently. Confirm with the source.</p>}
+    <div className="step">
+      {step.verify && <p className="note warn">Rules changed recently. Confirm with the source.</p>}
       <div className="step-body" dangerouslySetInnerHTML={{ __html: step.html }} />
-      <div className="links">
+      <ul className="link-list">
         {step.sources.map((u) => (
-          <a key={u} href={u} target="_blank" rel="noopener noreferrer">
-            {sourceLabel(u)} ↗
-          </a>
+          <li key={u}>
+            <a href={u} target="_blank" rel="noopener noreferrer">
+              <span>{sourceLabel(u)}</span>
+              <Icon name="external-link" size={18} />
+            </a>
+          </li>
         ))}
-      </div>
-      <label className="field row toggle">
-        <input type="checkbox" checked={done} onChange={(e) => onToggle(step.id, e.target.checked)} />
-        <span>Done</span>
-      </label>
-      <small className="reviewed">Reviewed {step.lastReviewed}</small>
-    </article>
+      </ul>
+      <p className="meta">Reviewed {step.lastReviewed}</p>
+    </div>
   );
 }

@@ -47,20 +47,29 @@ Non-goals (Phase 1)
 
 ## A5. Design principles
 
-1. **Very simple.** Four tabs. Home is a short checklist plus at most three cards. No
-   dashboards, no charts beyond one priority-date meter and one 12-month sparkline.
+1. **Very simple.** Four tabs (Today, Journey, Policy, Me). Today is one thing to do next, up to
+   two fact tiles and a quiet list. No dashboards, no charts beyond one priority-date tile (with a
+   detail view and one 12-month sparkline).
 2. **Ask, don't lecture.** Each check is a yes/no question in plain English, with one line on
    why it matters and one official link. Details live one tap deeper, never on Home.
-3. **Mobile only.** Single column ≤ 430px, bottom tab bar, large touch targets, works offline
-   for content. Desktop shows the same column centered.
+3. **Mobile only.** Single column ≤ 430px, floating tab bar, 44px touch targets, light and dark
+   (WCAG AA), works offline for content. Desktop shows the same column centered.
 4. **No sign-up wall.** Profile lives on the device. Sign-in only adds sync.
 5. **Official sources, always cited, always dated.** Every content item shows source links and
    "Last reviewed <date>". Persistent "Not legal advice" footer.
 6. **Personal by status, not by account.** `visa → stage → dates → situations` drives everything.
+7. **Dates never feel like homework.** Onboarding asks for at most two dates, both skippable.
+   Month and year is enough wherever a day would not change the answer; an exact day is asked
+   only for hard deadlines read off a document (I-94, I-797, EAD, program/OPT end). A missing
+   date is asked for later, in context, one at a time, and a dismissed ask stays dismissed.
+   When a month-only value is not enough (priority date in the cut-off's month) we say so and
+   ask for the day instead of guessing.
 
 ## A6. Core experience: "Check now" (profile-driven checklist)
 
-Home opens on a list titled **Check now**: 3–7 items, ordered by urgency. Each item is a card:
+The **Check now** list (on the Today tab: the top check is the hero card, the rest are
+"Also to check" rows, each opening a detail sheet; see A7) has 3–7 items ordered by urgency.
+Each item reads like this card:
 
 ```
 ┌───────────────────────────────────────────────┐
@@ -77,7 +86,8 @@ Home opens on a list titled **Check now**: 3–7 items, ordered by urgency. Each
   reveals the follow-up check (e.g. "Not yet" on "valid visa stamp?" reveals "Have you
   scheduled a consulate appointment?").
 - Items come from three kinds of triggers:
-  - **Situations** the user toggles with chips at the top of Home ("What's going on?"):
+  - **Situations** the user toggles from "Something changed?" on Today (active ones show as
+    removable chips):
     *Just entered / returned to the US · Travelling soon · Changing employer · Laid off ·
     Graduating / program ending · Moved home*. Toggling a situation on re-opens its checks
     even if they were done before (each entry gets a fresh I-94 check).
@@ -166,20 +176,31 @@ F-1 / OPT / STEM OPT
 
 ## A7. Screens
 
-1. **Onboarding (3 screens, all skippable):** visa → stage (plain-language options) → the 3–5
-   dates that matter for that stage. Lands on Home in under a minute.
-2. **Home:** status line ("H-1B · I-94 valid to 12 Mar 2028"); situation chips; **Check now**
-   list; **Priority date** card (H-1B/H-4 with PD): your PD vs Final Action vs Dates for Filing
-   for EB-2/EB-3 India, movement this month, 12-month sparkline, and a clearly labelled crude
-   estimate; **Next deadline** card; up to 2 **Policy alerts**.
-3. **Journey:** vertical timeline of stages for the visa; current stage expanded; each step =
-   what / when / forms & fees / sources / checklist. Stage transitions prompt profile updates
-   ("I-485 filed? Update your stage").
+1. **Onboarding (3 steps, all skippable):** visa → stage (plain-language options) → at most two
+   quick dates for that stage (`quick` in `visas.json`, e.g. I-94 "Admit until", or category +
+   priority date), with "Skip for now" as prominent as the main button. A stage with nothing
+   to ask goes straight to Today. Done in under 30 seconds.
+2. **Today** (route `/home`): header with a visa · stage chip; "Something changed?" opens the
+   situation sheet; **hero card** "Do this next" with the top open check (headline, one
+   supporting line, "Yes, done" / "Not yet"); up to two **fact tiles**: nearest deadline, and
+   for H-1B/H-4 with a priority date the **priority date tile** (your date, category, progress
+   bar, "Not current yet" / "Current for filing"; tap for the detail view with both charts, the
+   gap in years and months, movement, 12-month sparkline and the crude estimate), for F-1
+   unemployment days left; **Also to check** rows (one-line headline) opening a bottom sheet
+   (situation chip, headline, long question, why it matters, official links, Yes/Not yet,
+   "Reviewed <date> · <source>"); **Done · N**; at most one quiet "add this date" prompt;
+   up to 2 **Policy alerts** (with the Policy feed). Empty state: "You're all caught up".
+3. **Journey:** a stepper (one dot per stage), "Stage N of M" and "X of Y steps done"; the
+   stage's steps as one-line rows (tap the circle to mark done, tap the row to expand what /
+   when / forms & fees / sources inline); a dashed "Next: <stage>" preview; group steps such as
+   "Life events" below. Stage transitions prompt profile updates ("I-485 filed? Update your stage").
 4. **Policy:** list filtered to the user's tags with chips (H-1B · H-4 · F-1/OPT · Green card ·
    Travel); each item shows type (Bill / Proposed rule / Final rule / Executive action), status
    chip, date, source link; curated items add "What it means for you".
-5. **Me:** edit visa/stage/dates/flags; sign in with Google or email code; sync status;
-   "Add my dates to calendar" (.ics); delete my data; about, sources, disclaimer.
+5. **Me:** profile summary (change visa/stage); **Your dates** grouped Documents / Green card /
+   Work permit as list rows (value or "Add"; a sheet with month-year or date control and
+   "Clear"); **Advanced** (day counts, family flags); sign in with Google or email code; sync
+   status; "Add my dates to calendar" (.ics); delete my data; about, sources, disclaimer.
 
 ## A8. Personalization model
 
@@ -191,6 +212,20 @@ Stages per visa (ids used by content):
 - H-1B: `new` · `working` · `gc_perm_i140` · `gc_waiting_pd` · `i485_pending` · `approved`
 - H-4: `no_ead` · `ead_eligible` · `ead_working` · `i485_derivative`
 - F-1: `enrolled` · `opt_applying` · `opt` · `stem_opt` · `h1b_selected` · `ending`
+
+### A8.1 Date precision
+
+Declared per field in `web/content/visas.json`. Stored as `YYYY-MM-DD` (day) or `YYYY-MM` (month),
+resolved to a full date once (`resolveDates`) using the field's `assume`, always the conservative side.
+
+| Precision | Fields | Assumes |
+|---|---|---|
+| day (native date) | I-94 admit-until, I-797 end, EAD expiry, advance parole expiry, program end, OPT end, STEM OPT end | n/a |
+| month | passport expiry, visa stamp expiry, first month in H-1B, last I-20 travel signature | start (warn earlier) |
+| month | priority date, I-140 approved, spouse's I-140 approved, I-485 filed | end (never claim "current" or 180 days early) |
+
+OPT and STEM OPT start are derived from the end date (12 and 24 months). Day counts are numbers
+under Advanced in Me and never asked in onboarding.
 
 ## A9. User journeys (stage content; checks above are the "do now" layer)
 
