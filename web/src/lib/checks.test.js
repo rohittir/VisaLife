@@ -41,6 +41,23 @@ test('date windows: extension within 180 days, expired I-797, six-year clock', (
   assert.ok(ids(r3).includes('h1b-six-year-clock'));
 });
 
+test('month-only expiry dates never claim a date has passed or a window has opened early', () => {
+  const resolved = (dates) => ({ ...h1b, dates: resolveDates(dates, fields) });
+  // Entered "October 2026" on 10 Oct: the I-797 may still be valid until 31 Oct, so no "date has passed".
+  assert.ok(!ids(evaluate(resolved({ i797Expiry: '2026-10' }), checks, today)).includes('h1b-240-day'));
+  assert.ok(ids(evaluate(resolved({ i797Expiry: '2026-09' }), checks, today)).includes('h1b-240-day'));
+  // "April 2027" ends 30 Apr, 202 days away: the six-month filing window is not open yet, "March 2027" (172 days) is.
+  assert.ok(!ids(evaluate(resolved({ i797Expiry: '2027-04' }), checks, today)).includes('h1b-extension-window'));
+  assert.ok(ids(evaluate(resolved({ i797Expiry: '2027-03' }), checks, today)).includes('h1b-extension-window'));
+});
+
+test('the PERM date question is not asked of EB-1, which has no PERM', () => {
+  const p = { ...h1b, stage: 'gc_perm_i140', dates: {} };
+  assert.ok(ids(evaluate(p, checks, today)).includes('gc-perm-priority-date'));
+  assert.ok(ids(evaluate({ ...p, dates: { ebCategory: 'EB2' } }, checks, today)).includes('gc-perm-priority-date'));
+  assert.ok(!ids(evaluate({ ...p, dates: { ebCategory: 'EB1' } }, checks, today)).includes('gc-perm-priority-date'));
+});
+
 test('monthly checks come back each month', () => {
   const p = { ...h1b, stage: 'gc_waiting_pd', dates: { priorityDate: '2014-05-01' }, checks: { 'gc-bulletin-monthly': { answer: 'yes', at: '2026-09-15' } } };
   assert.ok(ids(evaluate(p, checks, today)).includes('gc-bulletin-monthly'));

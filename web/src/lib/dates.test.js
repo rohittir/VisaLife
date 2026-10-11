@@ -53,6 +53,8 @@ test('month-only values resolve to the conservative end of their month, full dat
   assert.equal(r.priorityDate, '2014-05-31'); // end: never claim current
   assert.equal(r.i140ApprovedOn, '2024-02-29'); // end, leap year
   assert.equal(r.i94Expiry, '2027-03-05');
+  assert.equal(d.resolveDates({ i94Expiry: '2027-03', i797Expiry: '2028-02', eadExpiry: '2026-12' }, fields).i797Expiry, '2028-02-29'); // end: not passed, window not early
+  assert.equal(d.resolveDates({ i94Expiry: '2027-03' }, fields).i94Expiry, '2027-03-31');
   assert.equal(r.unknown, '2020-01-01'); // not in visas.json: treated as start
   assert.ok(!('priorityDate2' in r));
   assert.equal(d.resolveDates({ priorityDate: '2014-05-12' }, fields).priorityDate, '2014-05-12');
@@ -60,9 +62,12 @@ test('month-only values resolve to the conservative end of their month, full dat
 
 test('every month field declares assume and the choice is the conservative side', () => {
   const month = Object.entries(fields).filter(([, f]) => f.precision === 'month');
-  assert.deepEqual(month.map(([k]) => k).sort(), ['h1bFirstStart', 'i140ApprovedOn', 'i485FiledOn', 'passportExpiry', 'priorityDate', 'primaryI140ApprovedOn', 'travelSignatureDate', 'visaStampExpiry'].sort());
-  const end = month.filter(([, f]) => f.assume === 'end').map(([k]) => k).sort();
-  assert.deepEqual(end, ['i140ApprovedOn', 'i485FiledOn', 'primaryI140ApprovedOn', 'priorityDate']);
+  assert.deepEqual(
+    month.map(([k]) => k).sort(),
+    ['apExpiry', 'eadExpiry', 'h1bFirstStart', 'i140ApprovedOn', 'i485FiledOn', 'i797Expiry', 'i94Expiry', 'optEnd', 'passportExpiry', 'priorityDate', 'primaryI140ApprovedOn', 'programEnd', 'stemOptEnd', 'travelSignatureDate', 'visaStampExpiry'].sort(),
+  );
+  const start = month.filter(([, f]) => f.assume === 'start').map(([k]) => k).sort();
+  assert.deepEqual(start, ['h1bFirstStart', 'passportExpiry', 'travelSignatureDate', 'visaStampExpiry']);
 });
 
 test('OPT and STEM start are derived from the end date, never read from the profile', () => {
@@ -77,4 +82,27 @@ test('month values format as "May 2014"', () => {
   assert.equal(d.formatDate('2014-05'), 'May 2014');
   assert.equal(d.formatDate('2014-05-12'), 'May 12, 2014');
   assert.ok(d.isMonth('2014-05') && !d.isMonth('2014-05-12') && !d.isMonth(undefined));
+});
+
+test('passed or ahead narrows the pickers', () => {
+  const t = new Date('2026-10-10T00:00:00Z');
+  assert.equal(d.timingOf('2026-09', t), 'past');
+  assert.equal(d.timingOf('2026-10', t), 'ahead'); // this month: the day decides, so it is not "passed"
+  assert.equal(d.timingOf('2027-01-15', t), 'ahead');
+  assert.equal(d.timingOf('', t), null);
+  assert.deepEqual(d.yearChoices('ahead', t).slice(0, 3), [2026, 2027, 2028]);
+  assert.equal(d.yearChoices('ahead', t).length, 10);
+  assert.deepEqual(d.yearChoices('past', t, 2), [2026, 2025, 2024]);
+  assert.deepEqual(d.monthChoices('ahead', 2026, t), [10, 11, 12]);
+  assert.deepEqual(d.monthChoices('past', 2026, t), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.equal(d.monthChoices('ahead', 2027, t).length, 12);
+  assert.equal(d.monthChoices('past', 2025, t).length, 12);
+});
+
+test('month-only deadlines read as months, not days', () => {
+  const t = new Date('2026-10-10T00:00:00Z');
+  assert.equal(d.monthsLabel('2026-10', t), 'This month');
+  assert.equal(d.monthsLabel('2026-11', t), 'Next month');
+  assert.equal(d.monthsLabel('2027-03', t), '5 months');
+  assert.equal(d.monthsLabel('2028-01', t), '15 months');
 });

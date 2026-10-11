@@ -1,4 +1,4 @@
-# VisaLife — Deployment plan: S3 + CloudFront
+# VisaLife by WorkingAlien — Deployment plan: S3 + CloudFront
 
 Status: stage 1 implemented in `infra/`, deployed by hand as `VisaLife-prod` in `us-east-1`. Stages 2 to 4 are still plans.
 

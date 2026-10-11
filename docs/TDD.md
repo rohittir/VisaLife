@@ -1,4 +1,4 @@
-# VisaLife — Technical Design Document (Phase 1)
+# VisaLife by WorkingAlien — Technical Design Document (Phase 1)
 
 ## B1. Architecture
 
@@ -98,6 +98,11 @@ VisaLife/
   `rawDates` (what was entered) so `{pdAmbiguous}` can tell a month-only priority date from an
   exact one. `ambiguity()` in `bulletin.js` is true when a chart's cut-off falls in the entered
   month after its first day; the tile and the `gc-pd-exact-day` check then ask for the day.
+  Expiry fields (`deadline`) are month precision with `assume: "end"`; Home shows one exact-day
+  row when such a value equals the current month. `FieldInput`'s month picker asks "Already
+  passed" or "Still ahead" first for `deadline` fields and narrows years and months with the
+  pure `timingOf`, `yearChoices` and `monthChoices` in `dates.js`; `monthsLabel` renders
+  month-only countdowns.
 - **Content pipeline:** `import.meta.glob('../content/steps/*.md', {query:'?raw', eager:true})`
   parsed with a 15-line frontmatter splitter + `marked` for the body; checks and journeys are
   plain JSON imports. A Vite plugin step (`scripts/validate-content.mjs`, run in `prebuild`)
@@ -360,7 +365,7 @@ DynamoDB on-demand pennies; Cognito Essentials free to 10k MAU; Secrets Manager 
 - Create the Google OAuth client and put its secret in Secrets Manager (B5).
 - Request a Congress.gov API key (free, api.data.gov).
 - Pick AWS account/region and a domain name (optional; CloudFront URL works without one).
-- Confirm "VisaLife" as the product name.
+- Product name is settled: VisaLife by WorkingAlien.
 
 ## References used for this design
 

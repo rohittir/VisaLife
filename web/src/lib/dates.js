@@ -19,6 +19,27 @@ export function inSeason(today, from, to) {
 }
 export const isMonth = (v) => /^\d{4}-\d{2}$/.test(v ?? '');
 export const monthEnd = (ym) => toISO(new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7), 0)));
+// What a month-and-year picker offers once we know whether a date has passed or is still ahead of `today`.
+// timingOf: "past" or "ahead" for an entered value (this month counts as ahead), null when empty.
+export const timingOf = (value, today = new Date()) =>
+  value ? (value.slice(0, 7) < toISO(today).slice(0, 7) ? 'past' : 'ahead') : null;
+// Years nearest to today first: this year and `back` years before it, or this year and nine after it.
+export const yearChoices = (when, today = new Date(), back = 10) => {
+  const y = today.getUTCFullYear();
+  return when === 'past' ? Array.from({ length: back + 1 }, (_, i) => y - i) : Array.from({ length: 10 }, (_, i) => y + i);
+};
+// All twelve months, except that in this year a past date cannot be after this month nor a future one before it.
+export const monthChoices = (when, year, today = new Date()) => {
+  const all = Array.from({ length: 12 }, (_, i) => i + 1);
+  if (Number(year) !== today.getUTCFullYear()) return all;
+  const cur = today.getUTCMonth() + 1;
+  return all.filter((n) => (when === 'past' ? n <= cur : n >= cur));
+};
+// "This month", "Next month", "5 months" for a month-only date: a day count would claim precision we do not have.
+export function monthsLabel(ym, today = new Date()) {
+  const n = (+ym.slice(0, 4) - today.getUTCFullYear()) * 12 + (+ym.slice(5, 7) - (today.getUTCMonth() + 1));
+  return n <= 0 ? 'This month' : n === 1 ? 'Next month' : `${n} months`;
+}
 // "May 2014" for YYYY-MM, "14 May 2014" style for a full date.
 export const formatDate = (iso) =>
   isMonth(iso)

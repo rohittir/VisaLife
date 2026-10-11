@@ -28,7 +28,13 @@ export default function Onboarding() {
     <div className="app">
       <main className="screen onboarding">
         <header className="brand">
-          <strong>VisaLife</strong>
+          <span className="mark">
+            <img src="/icon-192.png" alt="" width="40" height="40" />
+            <span>
+              <strong>VisaLife</strong>
+              <small>by WorkingAlien</small>
+            </span>
+          </span>
           <span className="dots" role="img" aria-label={`Step ${step + 1} of 3`}>
             {[0, 1, 2].map((i) => <i key={i} className={i === step ? 'on' : ''} />)}
           </span>

@@ -3,7 +3,7 @@ import { useProfile } from '../lib/profile.jsx';
 import { BULLETINS, CHECKS, VISAS, stageOf } from '../lib/content.js';
 import { status } from '../lib/bulletin.js';
 import { evaluate, resetForSituation, supportLine } from '../lib/checks.js';
-import { daysUntil, formatDate, resolveDates, unemploymentRemaining } from '../lib/dates.js';
+import { daysUntil, formatDate, isMonth, monthsLabel, resolveDates, unemploymentRemaining } from '../lib/dates.js';
 import CheckSheet from '../components/CheckSheet.jsx';
 import Icon from '../components/Icon.jsx';
 import JitPrompt, { nextPrompt } from '../components/JitPrompt.jsx';
@@ -11,6 +11,8 @@ import PDMeter, { ExactDay } from '../components/PDMeter.jsx';
 import Sheet from '../components/Sheet.jsx';
 
 const days = (n) => (n === 0 ? 'Today' : `${n} day${n === 1 ? '' : 's'}`);
+// A month-only date is shown in months: a day count would claim precision we do not have.
+const left = (raw, n, today) => (isMonth(raw) ? monthsLabel(raw, today) : days(n));
 
 // Icon and tint by what a check is about. Time-bound checks use the calendar icon (yellow soon, red past due).
 function look(c) {
@@ -56,7 +58,7 @@ function f1Tile(profile, dates, today, deadline) {
   }
   const k = stem ? 'stemOptEnd' : 'optEnd';
   if (dates[k] && k !== deadline?.k && daysUntil(dates[k], today) >= 0) {
-    return { label: VISAS.fields[k].label, big: days(daysUntil(dates[k], today)), sub: formatDate(profile.dates[k]) };
+    return { label: VISAS.fields[k].label, big: left(profile.dates[k], daysUntil(dates[k], today), today), sub: formatDate(profile.dates[k]) };
   }
   return null;
 }
@@ -85,6 +87,9 @@ export default function Home() {
   const pd = ['H1B', 'H4'].includes(profile.visa) && dates.priorityDate && dates.ebCategory && status(BULLETINS, dates.priorityDate, dates.ebCategory);
   const f1 = profile.visa === 'F1' ? f1Tile(profile, dates, today, deadline) : null;
   const prompt = nextPrompt(stage, profile);
+  // A month-only expiry whose month is this month: only the day says whether it has passed. Asked once, in place of the prompt.
+  const thisMonth = today.toISOString().slice(0, 7);
+  const dayField = Object.keys(profile.dates).find((k) => VISAS.fields[k]?.deadline && VISAS.fields[k].assume === 'end' && profile.dates[k] === thisMonth);
 
   const setDate = (k, v) => update((p) => ({ dates: { ...p.dates, [k]: v || undefined } }));
   const toggle = (id) =>
@@ -142,7 +147,7 @@ export default function Home() {
           {deadline && (
             <section className="tile" aria-label="Next deadline">
               <span className="label">Next deadline</span>
-              <span className="big">{days(deadline.n)}</span>
+              <span className="big">{left(profile.dates[deadline.k], deadline.n, today)}</span>
               <span className="sub">{VISAS.fields[deadline.k].label} · {formatDate(profile.dates[deadline.k])}</span>
             </section>
           )}
@@ -172,7 +177,12 @@ export default function Home() {
         </section>
       )}
 
-      {prompt && <JitPrompt key={prompt} fieldId={prompt} onSave={(v) => setDate(prompt, v)} onDismiss={() => update((p) => ({ dismissed: [...(p.dismissed ?? []), prompt] }))} />}
+      {dayField ? (
+        <section className="card" aria-label="Add the exact day">
+          <p className="muted">Your {VISAS.fields[dayField].label} is this month. The exact day tells us whether it has passed.</p>
+          <ExactDay month={profile.dates[dayField]} onSave={(iso) => setDate(dayField, iso)} />
+        </section>
+      ) : prompt && <JitPrompt key={prompt} fieldId={prompt} onSave={(v) => setDate(prompt, v)} onDismiss={() => update((p) => ({ dismissed: [...(p.dismissed ?? []), prompt] }))} />}
 
       {done.length > 0 && (
         <ul className="list">

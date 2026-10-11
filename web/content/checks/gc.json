@@ -1,7 +1,7 @@
 [
   {
     "id": "gc-perm-priority-date", "visas": ["H1B"], "priority": 3,
-    "when": { "all": [{ "stage": ["gc_perm_i140"] }, { "dateUnset": "priorityDate" }] },
+    "when": { "all": [{ "stage": ["gc_perm_i140"] }, { "dateUnset": "priorityDate" }, { "not": { "field": "dates.ebCategory", "eq": "EB1" } }] },
     "title": "Green card started",
     "short": "Do you know your PERM filing date?",
     "ask": "Do you know the date your PERM was filed with the Department of Labor? Add it in Me as your priority date.",

@@ -1,4 +1,4 @@
-# VisaLife — Product Requirements Document (Phase 1)
+# VisaLife by WorkingAlien — Product Requirements Document (Phase 1)
 
 ## A1. Problem
 
@@ -59,11 +59,11 @@ Non-goals (Phase 1)
    "Last reviewed <date>". Persistent "Not legal advice" footer.
 6. **Personal by status, not by account.** `visa → stage → dates → situations` drives everything.
 7. **Dates never feel like homework.** Onboarding asks for at most two dates, both skippable.
-   Month and year is enough wherever a day would not change the answer; an exact day is asked
-   only for hard deadlines read off a document (I-94, I-797, EAD, program/OPT end). A missing
-   date is asked for later, in context, one at a time, and a dismissed ask stays dismissed.
-   When a month-only value is not enough (priority date in the cut-off's month) we say so and
-   ask for the day instead of guessing.
+   Every date is month and year only; the exact day is asked for only when it decides something
+   (a priority date in the cut-off's month, or an expiry whose month is this month). Expiry-type
+   dates first ask "Already passed" or "Still ahead", which shortens the year list and hides
+   months that cannot be true. A missing date is asked for later, in context, one at a time,
+   and a dismissed ask stays dismissed.
 
 ## A6. Core experience: "Check now" (profile-driven checklist)
 
@@ -220,9 +220,14 @@ resolved to a full date once (`resolveDates`) using the field's `assume`, always
 
 | Precision | Fields | Assumes |
 |---|---|---|
-| day (native date) | I-94 admit-until, I-797 end, EAD expiry, advance parole expiry, program end, OPT end, STEM OPT end | n/a |
 | month | passport expiry, visa stamp expiry, first month in H-1B, last I-20 travel signature | start (warn earlier) |
+| month | I-94 admit-until, I-797 end, EAD expiry, advance parole expiry, program end, OPT end, STEM OPT end | end (never claim it has passed, or that a filing window opened early) |
 | month | priority date, I-140 approved, spouse's I-140 approved, I-485 filed | end (never claim "current" or 180 days early) |
+
+A day is stored only when the user adds it after being asked: an expiry whose month is the current
+month shows one "Add the exact day" row on Today. Month-only deadlines are shown in months ("This
+month", "Next month", "5 months"), not days. Expiry-type fields (`deadline` in `visas.json`) offer
+"Already passed" / "Still ahead" before the pickers.
 
 OPT and STEM OPT start are derived from the end date (12 and 24 months). Day counts are numbers
 under Advanced in Me and never asked in onboarding.

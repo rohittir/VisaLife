@@ -144,7 +144,7 @@ export default function Me() {
 
       <section className="card">
         <h2>About</h2>
-        <p className="muted">VisaLife summarises information published by USCIS, CBP, DHS, the Department of State and the Department of Labor. It is not legal advice.</p>
+        <p className="muted">VisaLife is made by WorkingAlien. It summarises information published by USCIS, CBP, DHS, the Department of State and the Department of Labor. It is not legal advice.</p>
       </section>
 
       {edit === 'profile' && <EditProfile profile={profile} update={update} onClose={() => setEdit(null)} />}

@@ -24,8 +24,21 @@ test('every stage has at most two quick fields and each exists in the stage', ()
   assert.deepEqual(quick('F1', 'ending'), ['optEnd', 'stemOptEnd']);
 });
 
+test('green card category offers EB-1, EB-2 and EB-3, each present in the bulletin data', () => {
+  assert.deepEqual(data.fields.ebCategory.options, ['EB1', 'EB2', 'EB3']);
+  assert.ok(!/PERM/.test(data.fields.priorityDate.label), 'EB-1 has no PERM, so the label must not say it');
+});
+
 test('optStart and stemOptStart are not inputs any more', () => {
   assert.ok(!('optStart' in data.fields) && !('stemOptStart' in data.fields));
+});
+
+test('expiry dates ask month and year only, and never claim a window opened early or a date passed', () => {
+  for (const k of ['i94Expiry', 'i797Expiry', 'eadExpiry', 'apExpiry', 'programEnd', 'optEnd', 'stemOptEnd']) {
+    assert.equal(data.fields[k].precision, 'month', k);
+    assert.equal(data.fields[k].assume, 'end', k);
+    assert.equal(data.fields[k].deadline, true, k);
+  }
 });
 
 test('the validator rejects bad precision, assume and quick shapes', () => {
@@ -37,7 +50,7 @@ test('the validator rejects bad precision, assume and quick shapes', () => {
   assert.match(bad((d) => (d.fields.i94Expiry.precision = 'week'))[0], /precision/);
   assert.match(bad((d) => delete d.fields.priorityDate.assume)[0], /assume/);
   assert.match(bad((d) => (d.fields.priorityDate.assume = 'middle'))[0], /assume/);
-  assert.match(bad((d) => (d.fields.i94Expiry.assume = 'end'))[0], /assume only applies/);
+  assert.match(bad((d) => (d.fields.i94Expiry.precision = 'day'))[0], /assume only applies/);
   assert.match(bad((d) => (d.visas.H1B.stages[0].quick = ['i94Expiry', 'i797Expiry', 'passportExpiry']))[0], /at most two/);
   assert.match(bad((d) => (d.visas.H1B.stages[0].quick = ['nope']))[0], /unknown quick/);
   assert.match(bad((d) => (d.visas.H1B.stages[0].quick = ['priorityDate']))[0], /not in the stage/);

@@ -1,37 +1,59 @@
 import { useState } from 'react';
+import { monthChoices, timingOf, yearChoices } from '../lib/dates.js';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const TIMING = [['past', 'Already passed'], ['ahead', 'Still ahead']];
 
 // Month and year selects for a month-only field. Emits "YYYY-MM" once both are chosen, "" otherwise.
-function MonthYear({ label, value, onChange, future }) {
+// Expiry-type fields (`deadline`) first ask whether the date has passed or is still ahead: that picks the
+// direction of the year list and hides months that cannot be true, so there is little to scroll.
+function MonthYear({ label, value, onChange, deadline }) {
+  const now = new Date();
   const [y0 = '', m0 = ''] = (value ?? '').split('-');
   const [y, setY] = useState(y0);
   const [m, setM] = useState(m0);
-  const now = new Date().getFullYear();
-  const years = Array.from({ length: future ? 13 : 26 }, (_, i) => (future ? now - 1 + i : now - i));
+  const [when, setWhen] = useState(deadline ? timingOf(value, now) : 'past');
+  const years = yearChoices(when ?? 'ahead', now, deadline ? 10 : 25);
   if (y && !years.includes(Number(y))) years.push(Number(y));
-  const set = (ny, nm) => {
+  const months = monthChoices(when, y, now);
+
+  const emit = (ny, nm) => {
     setY(ny);
     setM(nm);
     onChange(ny && nm ? `${ny}-${nm}` : '');
   };
+  const pickYear = (ny) => emit(ny, m && monthChoices(when, ny, now).includes(Number(m)) ? m : '');
+  const pickTiming = (w) => {
+    setWhen(w);
+    emit('', '');
+  };
+
   return (
     <fieldset className="field">
       <legend>{label}</legend>
-      <div className="pair">
-        <select aria-label={`${label}, month`} value={m} onChange={(e) => set(y, e.target.value)}>
-          <option value="">Month</option>
-          {MONTHS.map((n, i) => (
-            <option key={n} value={String(i + 1).padStart(2, '0')}>{n}</option>
+      {deadline && (
+        <div className="seg" role="group" aria-label={`${label}: has it passed?`}>
+          {TIMING.map(([k, t]) => (
+            <button key={k} type="button" aria-pressed={when === k} onClick={() => pickTiming(k)}>{t}</button>
           ))}
-        </select>
-        <select aria-label={`${label}, year`} value={y} onChange={(e) => set(e.target.value, m)}>
-          <option value="">Year</option>
-          {years.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
-      </div>
+        </div>
+      )}
+      {when && (
+        <div className="pair">
+          <select aria-label={`${label}, month`} value={m} onChange={(e) => emit(y, e.target.value)}>
+            <option value="">Month</option>
+            {months.map((n) => (
+              <option key={n} value={String(n).padStart(2, '0')}>{MONTHS[n - 1]}</option>
+            ))}
+          </select>
+          <select aria-label={`${label}, year`} value={y} onChange={(e) => pickYear(e.target.value)}>
+            <option value="">Year</option>
+            {years.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
+      )}
     </fieldset>
   );
 }
@@ -40,7 +62,7 @@ function MonthYear({ label, value, onChange, future }) {
 // `value` is the stored string ("YYYY-MM", "YYYY-MM-DD", "EB2", ...); onChange gets the new string ("" when cleared).
 export default function FieldInput({ field, value, onChange, label = field.label, hideLabel = false }) {
   if (field.type === 'date' && field.precision === 'month') {
-    return <MonthYear label={label} value={value} onChange={onChange} future={Boolean(field.deadline)} />;
+    return <MonthYear label={label} value={value} onChange={onChange} deadline={Boolean(field.deadline)} />;
   }
   return (
     <label className="field">

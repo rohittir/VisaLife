@@ -1,4 +1,4 @@
-# VisaLife
+# VisaLife by WorkingAlien
 
 Mobile-only web app for Indian nationals in the US on H-1B, H-4 and F-1 (OPT / STEM OPT).
 It turns "my visa + my stage + what is happening" into a short **Check now** list with official links.
