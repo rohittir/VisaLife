@@ -2,6 +2,7 @@ import { useLayoutEffect } from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { ProfileProvider, useProfile } from './lib/profile.jsx';
 import BottomTabs from './components/BottomTabs.jsx';
+import { FeedbackLink, FeedbackProvider } from './components/FeedbackSheet.jsx';
 import Onboarding from './pages/Onboarding.jsx';
 import Home from './pages/Home.jsx';
 import Journey from './pages/Journey.jsx';
@@ -17,13 +18,16 @@ function Shell() {
   }, [pathname]);
   if (!profile?.visa || !profile?.stage) return <Navigate to="/start" replace />;
   return (
-    <div className="app">
-      <main className="screen">
-        <Outlet />
-        <p className="disclaimer">General information from official sources, not legal advice. Confirm with the linked source or a licensed attorney.</p>
-      </main>
-      <BottomTabs />
-    </div>
+    <FeedbackProvider>
+      <div className="app">
+        <main className="screen">
+          <Outlet />
+          <p className="disclaimer">General information from official sources, not legal advice. Confirm with the linked source or a licensed attorney.</p>
+          <FeedbackLink />
+        </main>
+        <BottomTabs />
+      </div>
+    </FeedbackProvider>
   );
 }
 

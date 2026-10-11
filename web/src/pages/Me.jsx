@@ -5,6 +5,7 @@ import { VISAS, stageOf } from '../lib/content.js';
 import { formatDate } from '../lib/dates.js';
 import { GROUPS } from '../lib/visas.js';
 import FieldInput from '../components/FieldInput.jsx';
+import { useFeedback } from '../components/FeedbackSheet.jsx';
 import Icon from '../components/Icon.jsx';
 import Sheet from '../components/Sheet.jsx';
 
@@ -48,6 +49,7 @@ function EditProfile({ profile, update, onClose }) {
 export default function Me() {
   const { profile, update, reset } = useProfile();
   const nav = useNavigate();
+  const openFeedback = useFeedback();
   const [edit, setEdit] = useState(null); // 'profile' or a field id
   const stage = stageOf(profile.visa, profile.stage);
   const dateFields = stage.fields.filter((k) => VISAS.fields[k].type !== 'number');
@@ -138,8 +140,14 @@ export default function Me() {
 
       <section className="card">
         <h2>Your data</h2>
-        <p className="muted">Nothing is sent anywhere. Dates and answers are stored in this browser only.</p>
+        <p className="muted">Your dates and answers stay in this browser. The only thing VisaLife sends is feedback you choose to send, and it is anonymous.</p>
         <button type="button" className="btn danger" onClick={wipe}>Delete my data</button>
+      </section>
+
+      <section className="card">
+        <h2>Feedback</h2>
+        <p className="muted">Tell us what to add, what is wrong, or what helped. No name or email needed.</p>
+        <button type="button" className="btn outline" onClick={openFeedback}>Send feedback</button>
       </section>
 
       <section className="card">

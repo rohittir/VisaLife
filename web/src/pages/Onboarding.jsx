@@ -80,7 +80,7 @@ export default function Onboarding() {
         {step === 2 && (
           <>
             <h1 className="big-title">{quick.length > 1 ? `Two quick ${noun}s` : `One quick ${noun}`}</h1>
-            <p className="muted">Each answer turns on a countdown or a check. Nothing leaves this device.</p>
+            <p className="muted">Each answer turns on a countdown or a check. Your answers stay on this device.</p>
             <div className="form">
               {quick.map((k) => (
                 <FieldInput key={k} field={VISAS.fields[k]} value={dates[k]} onChange={(v) => setDates((d) => ({ ...d, [k]: v }))} />

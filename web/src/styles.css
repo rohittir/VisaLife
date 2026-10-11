@@ -73,7 +73,7 @@ h2 { font-size: 15px; line-height: 24px; }
 a { color: inherit; text-underline-offset: 3px; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:disabled { cursor: default; opacity: 0.55; }
-:where(a, button, input, select, summary):focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Layout */
@@ -107,6 +107,7 @@ button:disabled { cursor: default; opacity: 0.55; }
 .btn.wide { width: 100%; }
 .btn-text { background: none; border: 0; min-height: 44px; padding: 0 4px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
 .btn-text.start { justify-self: start; }
+.feedback-link { justify-self: center; font-size: 12px; line-height: 16px; }
 .plain { background: none; border: 0; padding: 0; text-align: left; font: inherit; color: inherit; }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .actions.stacked { grid-template-columns: 1fr; }
@@ -175,7 +176,9 @@ button:disabled { cursor: default; opacity: 0.55; }
 .radio input { appearance: none; flex: none; width: 24px; height: 24px; min-height: 0; margin: 0; padding: 0; border: 2px solid var(--edge); border-radius: 999px; background: var(--card); }
 .radio input:checked { border-color: var(--ink); background: var(--ink); box-shadow: inset 0 0 0 4px var(--card); }
 .pair { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; }
-input, select { font: inherit; font-size: 16px; min-height: 48px; padding: 0 12px; width: 100%; border: 1px solid var(--edge); border-radius: 12px; background: var(--card); color: var(--ink); }
+input, select, textarea { font: inherit; font-size: 16px; min-height: 48px; padding: 0 12px; width: 100%; border: 1px solid var(--edge); border-radius: 12px; background: var(--card); color: var(--ink); }
+textarea { min-height: 120px; padding: 12px; resize: vertical; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; } /* honeypot: off-screen, not display:none, so bots still see it */
 .form { display: grid; gap: 16px; }
 details.adv { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; }
 details.adv > summary { display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 8px 16px; cursor: pointer; list-style: none; font-weight: 500; }

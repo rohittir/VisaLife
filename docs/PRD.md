@@ -297,6 +297,7 @@ cap-gap, "switch my profile to H-1B") → Ending (grace, options).
 | Checklist done-state | this device | synced |
 | Delete my data | clear device | DELETE account + device |
 | Email alerts (PD current, new matching rule) | — | Phase 1b |
+| Send feedback (anonymous: no name or email; cannot be deleted later) | ✓ | ✓ |
 
 ## A12. Content rules
 
@@ -315,7 +316,8 @@ cap-gap, "switch my profile to H-1B") → Ending (grace, options).
 - ≥ 3 checks marked done per active user per month.
 - Returning users within 30 days ≥ 40% (PWA install prompt accepted ≥ 15%).
 - Zero content items older than 90 days without re-review.
-- No PII stored beyond email for signed-in users.
+- No PII stored beyond email for signed-in users. Feedback carries no identifier, and receipt numbers,
+  A-numbers, emails, phone numbers and SSNs in it are masked before saving.
 
 ## A14. Risks
 
