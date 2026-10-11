@@ -74,3 +74,25 @@ test('without a domain there is no alias and no DNS record', () => {
 test('a domain without a certificate is refused', () => {
   assert.throws(() => synth({ domain: 'visalife.example.com' }), /certificateArn/);
 });
+
+const apex = { ...custom, apexRedirect: true };
+const distributions = (t) => Object.values(t.findResources('AWS::CloudFront::Distribution')).map((r) => r.Properties.DistributionConfig);
+
+test('apex redirect: a second distribution answers the bare domain with the function and DNS points at it', () => {
+  const t = synth(apex);
+  const [site, redirect] = distributions(t).sort((a, b) => (a.Aliases[0] < b.Aliases[0] ? 1 : -1));
+  assert.deepEqual(site.Aliases, ['visalife.example.com']);
+  assert.deepEqual(redirect.Aliases, ['example.com']);
+  assert.equal(redirect.ViewerCertificate.AcmCertificateArn, custom.certificateArn);
+  assert.equal(redirect.DefaultCacheBehavior.FunctionAssociations[0].EventType, 'viewer-request');
+  assert.equal(redirect.DefaultCacheBehavior.ViewerProtocolPolicy, 'allow-all');
+  t.resourceCountIs('AWS::CloudFront::Function', 1);
+  t.hasResourceProperties('AWS::Route53::RecordSet', { Name: 'example.com.', Type: 'A' });
+  t.hasResourceProperties('AWS::Route53::RecordSet', { Name: 'example.com.', Type: 'AAAA' });
+  assert.match(JSON.stringify(t.findResources('AWS::CloudFront::Function')), /https:\/\/visalife\.example\.com/);
+});
+
+test('no apex redirect unless asked, and not without a zone', () => {
+  assert.equal(distributions(synth(custom)).length, 1);
+  assert.throws(() => synth({ domain: 'a.example.com', certificateArn: 'arn:x', apexRedirect: true }), /apexRedirect needs/);
+});

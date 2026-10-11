@@ -14,6 +14,7 @@ new VisaLifeStack(app, `VisaLife-${envName}`, {
   hostedZoneId: ctx('hostedZoneId'),
   zoneName: ctx('zoneName'),
   indexable: ctx('indexable') === 'true' || ctx('indexable') === true,
+  apexRedirect: ctx('apexRedirect') === 'true' || ctx('apexRedirect') === true,
   // us-east-1: CloudFront certificates must live here, and the users are in the US.
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: 'us-east-1' },
 });
