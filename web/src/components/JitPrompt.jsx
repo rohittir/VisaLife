@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { VISAS } from '../lib/content.js';
+import { nextPrompt as pick } from '../lib/prompts.js';
 import FieldInput from './FieldInput.jsx';
 
-// The first date of this stage that is still missing, has a reason to ask (`unlock` in visas.json) and was not dismissed.
-export const nextPrompt = (stage, profile) =>
-  stage?.fields.find((k) => VISAS.fields[k].unlock && !profile.dates[k] && !profile.dismissed?.includes(k));
+// The next date or choice to ask on Today (rules in lib/prompts.js).
+export const nextPrompt = (stage, profile, today) => pick(stage, profile, VISAS.fields, today);
 
 // One quiet card: why it helps, one field, Save, and Skip, which is remembered in the profile.
 export default function JitPrompt({ fieldId, onSave, onDismiss }) {

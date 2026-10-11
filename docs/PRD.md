@@ -234,6 +234,11 @@ optional. For checks it counts as a date in the past (an I-797 or program end th
 raises the 240-day and OPT-window checks), and countdown tiles ignore it. A field with
 `timing: "ahead"` (a planned date) shows only the pickers.
 
+Today does not ask what the profile already answers: a field may carry a `skipWhen` condition. The
+first month in H-1B (it only feeds the six-year limit) is not asked once an approved I-140 is
+confirmed: `i140ApprovedOn` is set, or the stage is Waiting for my priority date, I-485 filed or
+Green card approved. "Green card started" does not count. The field stays editable in Me.
+
 OPT and STEM OPT start are derived from the end date (12 and 24 months). Day counts are numbers
 under Advanced in Me and never asked in onboarding.
 

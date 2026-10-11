@@ -73,3 +73,16 @@ test('date questions are plain sentences, and a field can be limited to future d
   assert.match(bad((d) => (d.fields.ebCategory.timing = 'ahead'))[0], /only apply to date fields/);
   assert.match(bad((d) => (d.fields.i94Expiry.question = ''))[0], /question/);
 });
+
+test('the first H-1B month is not asked once an approved I-140 is confirmed, and skipWhen must be a condition object', () => {
+  assert.deepEqual(data.fields.h1bFirstStart.skipWhen, {
+    any: [{ dateSet: 'i140ApprovedOn' }, { stage: ['gc_waiting_pd', 'i485_pending', 'approved'] }],
+  });
+  const bad = (v) => {
+    const d = clone();
+    d.fields.h1bFirstStart.skipWhen = v;
+    return validateVisas(d);
+  };
+  assert.deepEqual(bad({ dateSet: 'i140ApprovedOn' }), []);
+  for (const v of ['gc_waiting_pd', 42, null, [{ dateSet: 'i140ApprovedOn' }]]) assert.match(bad(v)[0], /skipWhen must be a condition object/, JSON.stringify(v));
+});

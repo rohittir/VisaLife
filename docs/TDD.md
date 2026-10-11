@@ -102,8 +102,9 @@ VisaLife/
 - **Dates:** `visas.json` declares per field `precision` (`day`|`month`), `assume` (`start`|`end`,
   month fields), `group`, `deadline`, `unlock` (the just-in-time prompt text) and per stage `quick`
   (at most two ids asked in onboarding; `[]` for stages whose dates Today asks one at a time),
-  optional `question` (the legend of the date control) and `timing: "ahead"` (pickers only, no
-  passed/ahead choice). `resolveDates(dates, VISAS.fields, today)` runs once in Home: `passed`
+  optional `question` (the legend of the date control), `timing: "ahead"` (pickers only, no
+  passed/ahead choice) and `skipWhen` (a check condition: when it holds Today does not ask for the
+  field; `nextPrompt` in `lib/prompts.js` evaluates it with `matches()` on the resolved dates). `resolveDates(dates, VISAS.fields, today)` runs once in Home: `passed`
   becomes yesterday (so `datePast` checks fire) and never derives `optStart`/`stemOptStart`. Its
   result goes to `checks.evaluate`, the bulletin status and the countdowns, together with
   `rawDates` (what was entered) so `{pdAmbiguous}` can tell a month-only priority date from an

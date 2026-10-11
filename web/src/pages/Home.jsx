@@ -86,7 +86,7 @@ export default function Home() {
   const deadline = nextDeadline(dates, today);
   const pd = ['H1B', 'H4'].includes(profile.visa) && dates.priorityDate && dates.ebCategory && status(BULLETINS, dates.priorityDate, dates.ebCategory);
   const f1 = profile.visa === 'F1' ? f1Tile(profile, dates, today, deadline) : null;
-  const prompt = nextPrompt(stage, profile);
+  const prompt = nextPrompt(stage, profile, today);
   // A month-only expiry whose month is this month: only the day says whether it has passed. Asked once, in place of the prompt.
   const thisMonth = today.toISOString().slice(0, 7);
   const dayField = Object.keys(profile.dates).find(
