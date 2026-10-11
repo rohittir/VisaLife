@@ -25,32 +25,11 @@ function EditDate({ id, value, onSave, onClose }) {
   );
 }
 
-function EditProfile({ profile, update, onClose }) {
-  return (
-    <Sheet title="Visa and stage" onClose={onClose}>
-      <div className="form">
-        <label className="field">
-          <span>Visa</span>
-          <select value={profile.visa} onChange={(e) => update({ visa: e.target.value, stage: VISAS.visas[e.target.value].stages[0].id })}>
-            {Object.entries(VISAS.visas).map(([id, v]) => <option key={id} value={id}>{v.label}</option>)}
-          </select>
-        </label>
-        <label className="field">
-          <span>Stage</span>
-          <select value={profile.stage} onChange={(e) => update({ stage: e.target.value })}>
-            {VISAS.visas[profile.visa].stages.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-          </select>
-        </label>
-      </div>
-    </Sheet>
-  );
-}
-
 export default function Me() {
   const { profile, update, reset } = useProfile();
   const nav = useNavigate();
   const openFeedback = useFeedback();
-  const [edit, setEdit] = useState(null); // 'profile' or a field id
+  const [edit, setEdit] = useState(null); // a date field id
   const stage = stageOf(profile.visa, profile.stage);
   const dateFields = stage.fields.filter((k) => VISAS.fields[k].type !== 'number');
   const numbers = stage.fields.filter((k) => VISAS.fields[k].type === 'number');
@@ -74,7 +53,7 @@ export default function Me() {
             <p><strong>{VISAS.visas[profile.visa].label}</strong></p>
             <p className="muted">{stage.label}</p>
           </div>
-          <button type="button" className="btn quiet" onClick={() => setEdit('profile')}>Change</button>
+          <button type="button" className="btn quiet" onClick={() => nav('/start')}>Change</button>
         </div>
       </section>
 
@@ -155,8 +134,7 @@ export default function Me() {
         <p className="muted">VisaLife is made by WorkingAlien. It summarises information published by USCIS, CBP, DHS, the Department of State and the Department of Labor. It is not legal advice.</p>
       </section>
 
-      {edit === 'profile' && <EditProfile profile={profile} update={update} onClose={() => setEdit(null)} />}
-      {edit && edit !== 'profile' && (
+      {edit && (
         <EditDate key={edit} id={edit} value={profile.dates[edit]} onClose={() => setEdit(null)} onSave={(v) => { setDate(edit, v); setEdit(null); }} />
       )}
     </>

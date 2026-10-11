@@ -10,9 +10,11 @@ const VISA_ICON = { H1B: 'id-card', H4: 'user', F1: 'route' };
 export default function Onboarding() {
   const { profile, update } = useProfile();
   const nav = useNavigate();
-  const [visa, setVisa] = useState(profile?.visa ?? null);
-  const [stage, setStage] = useState(profile?.stage ?? null);
-  const [dates, setDates] = useState({});
+  // Always starts on the first page. With a saved profile (Me > Change) it marks the current choice and prefills the dates.
+  const editing = Boolean(profile?.visa && profile?.stage);
+  const [visa, setVisa] = useState(null);
+  const [stage, setStage] = useState(null);
+  const [dates, setDates] = useState(profile?.dates ?? {});
   const quick = stageOf(visa, stage)?.quick ?? [];
   const noun = quick.every((k) => VISAS.fields[k].type === 'date') ? 'date' : 'question'; // a quick field can be a select
   const step = !visa ? 0 : !stage ? 1 : 2;
@@ -25,7 +27,7 @@ export default function Onboarding() {
   };
   // A stage with nothing to ask goes straight to Today.
   const pickStage = (s) => (stageOf(visa, s).quick.length ? setStage(s) : finish({}, s));
-  const entered = Object.fromEntries(Object.entries(dates).filter(([, v]) => v));
+  const entered = Object.fromEntries(quick.filter((k) => dates[k]).map((k) => [k, dates[k]]));
 
   return (
     <div className="app">
@@ -49,13 +51,17 @@ export default function Onboarding() {
             <p className="muted">Free, no account. For Indian nationals already in the US.</p>
             <div className="choices">
               {Object.entries(VISAS.visas).map(([id, v]) => (
-                <button key={id} type="button" className="choice" onClick={() => setVisa(id)}>
+                <button key={id} type="button" className="choice" aria-current={editing && id === profile.visa ? 'true' : undefined} onClick={() => setVisa(id)}>
                   <span className="ico"><Icon name={VISA_ICON[id]} size={24} /></span>
-                  <span><strong>{v.label}</strong></span>
+                  <span>
+                    <strong>{v.label}</strong>
+                    {editing && id === profile.visa && <small>Current</small>}
+                  </span>
                   <Icon name="chevron-right" />
                 </button>
               ))}
             </div>
+            {editing && <button type="button" className="btn-text start" onClick={() => nav('/me', { replace: true })}>Cancel</button>}
           </>
         )}
 
@@ -63,15 +69,18 @@ export default function Onboarding() {
           <>
             <h1 className="big-title">Where are you right now?</h1>
             <div className="choices">
-              {VISAS.visas[visa].stages.map((s) => (
-                <button key={s.id} type="button" className="choice" onClick={() => pickStage(s.id)}>
-                  <span>
-                    <strong>{s.label}</strong>
-                    <small>{s.hint}</small>
-                  </span>
-                  <Icon name="chevron-right" />
-                </button>
-              ))}
+              {VISAS.visas[visa].stages.map((s) => {
+                const current = editing && visa === profile.visa && s.id === profile.stage;
+                return (
+                  <button key={s.id} type="button" className="choice" aria-current={current ? 'true' : undefined} onClick={() => pickStage(s.id)}>
+                    <span>
+                      <strong>{s.label}</strong>
+                      <small>{current ? `Current · ${s.hint}` : s.hint}</small>
+                    </span>
+                    <Icon name="chevron-right" />
+                  </button>
+                );
+              })}
             </div>
             <button type="button" className="btn-text start" onClick={() => setVisa(null)}>Back</button>
           </>
