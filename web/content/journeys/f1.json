@@ -1,0 +1,11 @@
+{
+  "visa": "F1",
+  "stages": [
+    { "id": "enrolled", "steps": ["f1-full-course-load", "f1-work-while-studying", "f1-program-end-date", "f1-travel", "f1-duration-of-status"] },
+    { "id": "opt_applying", "steps": ["f1-opt-filing-window", "f1-opt-no-work-before-ead", "f1-opt-fee-proposal"] },
+    { "id": "opt", "steps": ["f1-opt-reporting", "f1-unemployment-days", "f1-stem-eligibility", "f1-h1b-lottery"] },
+    { "id": "stem_opt", "steps": ["f1-stem-evaluations", "f1-stem-validation", "f1-stem-new-employer", "f1-stem-alternatives"] },
+    { "id": "h1b_selected", "steps": ["f1-h1b-petition", "f1-cap-gap", "f1-100k-payment"] },
+    { "id": "ending", "steps": ["f1-grace-period", "f1-ending-options"] }
+  ]
+}
