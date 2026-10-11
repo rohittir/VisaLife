@@ -1,0 +1,82 @@
+[
+  {
+    "id": "gc-perm-priority-date", "visas": ["H1B"], "priority": 3,
+    "when": { "all": [{ "stage": ["gc_perm_i140"] }, { "dateUnset": "priorityDate" }] },
+    "title": "Green card started",
+    "ask": "Do you know the date your PERM was filed with the Department of Labor? Add it in Me as your priority date.",
+    "why": "The PERM filing date becomes your priority date, the one number that decides how long you wait. Ask HR or counsel for it and keep a copy of the ETA-9089.",
+    "links": [{ "label": "PERM program (DOL)", "url": "https://flag.dol.gov/programs/perm" }],
+    "sources": ["https://flag.dol.gov/programs/perm"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-i140-check", "visas": ["H1B"], "priority": 3,
+    "when": { "dateSet": "i140ApprovedOn" },
+    "title": "I-140 approved",
+    "ask": "Does the I-140 approval notice show the priority date and category (EB-2 or EB-3) you expected, and do you have your own copy?",
+    "why": "Errors on the notice are easier to fix early, and you will need the copy for every future extension and to carry the date to a new employer.",
+    "links": [{ "label": "Form I-140 (USCIS)", "url": "https://www.uscis.gov/i-140" }],
+    "sources": ["https://www.uscis.gov/i-140"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-bulletin-monthly", "visas": ["H1B", "H4"], "priority": 2, "repeat": "monthly",
+    "when": { "all": [{ "dateSet": "priorityDate" }, { "stage": ["gc_perm_i140", "gc_waiting_pd", "no_ead", "ead_eligible", "ead_working"] }] },
+    "title": "This month's Visa Bulletin",
+    "ask": "Have you checked this month's bulletin for your category, and which chart USCIS is accepting (Dates for Filing or Final Action Dates)?",
+    "why": "If your priority date is before the Dates for Filing cut-off and USCIS accepts that chart, you can file the I-485 with a work permit and advance parole now, even though approval is years away.",
+    "links": [
+      { "label": "Visa Bulletin (State Dept)", "url": "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html" },
+      { "label": "Which chart to use this month (USCIS)", "url": "https://www.uscis.gov/green-card/green-card-processes-and-procedures/visa-availability-priority-dates/adjustment-of-status-filing-charts-from-the-visa-bulletin" }
+    ],
+    "sources": ["https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-i485-docs-ready", "visas": ["H1B", "H4"], "priority": 4,
+    "when": { "stage": ["gc_waiting_pd"] },
+    "title": "Waiting for your priority date",
+    "ask": "Are your I-485 documents ready for the month your date becomes current: birth certificates (with a non-availability certificate if needed), marriage certificate, photos, full I-94 and I-797 history, employer letter, and a plan for the civil-surgeon medical (I-693)?",
+    "why": "Filing in the first month a date is current matters because dates retrogress. Indian birth certificates and medical appointments are the usual delays.",
+    "links": [
+      { "label": "Form I-485 checklist (USCIS)", "url": "https://www.uscis.gov/i-485" },
+      { "label": "Find a civil surgeon (USCIS)", "url": "https://my.uscis.gov/findadoctor" }
+    ],
+    "verify": true,
+    "sources": ["https://www.uscis.gov/i-485", "https://www.uscis.gov/i-693"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-eb3-downgrade", "visas": ["H1B"], "priority": 6,
+    "when": { "all": [{ "stage": ["gc_waiting_pd"] }, { "field": "dates.ebCategory", "eq": "EB2" }] },
+    "title": "Waiting for your priority date",
+    "ask": "When EB-3 India moves ahead of EB-2, have you discussed with your employer or counsel whether a new EB-3 I-140 (keeping your EB-2 priority date) makes sense?",
+    "why": "A downgrade lets you file the I-485 under whichever category is current. It is a strategy decision with costs and timing risks, not a form you file alone.",
+    "links": [{ "label": "Visa availability and priority dates (USCIS)", "url": "https://www.uscis.gov/green-card/green-card-processes-and-procedures/visa-availability-priority-dates" }],
+    "sources": ["https://www.uscis.gov/green-card/green-card-processes-and-procedures/visa-availability-priority-dates"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-i485-cards", "visas": ["H1B", "H4"], "priority": 3,
+    "when": { "stage": ["i485_pending", "i485_derivative"] },
+    "title": "I-485 pending",
+    "ask": "Biometrics done, and have you received your EAD and advance parole (combo card)? Add the card's expiry date in Me.",
+    "why": "The card is your fallback if H-1B or H-4 status ever breaks, and its renewal should be filed about 180 days before it expires.",
+    "links": [{ "label": "Check case status (USCIS)", "url": "https://egov.uscis.gov/" }],
+    "sources": ["https://www.uscis.gov/i-765", "https://www.uscis.gov/i-131"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-ead-renewal", "visas": ["H1B", "H4"], "priority": 1,
+    "when": { "dateWithin": { "field": "eadExpiry", "days": 180 } },
+    "title": "EAD expires within 6 months",
+    "ask": "Have you filed the EAD (and advance parole) renewal?",
+    "why": "USCIS accepts renewals up to 180 days early. Automatic extensions for pending renewals were removed for applications filed on or after 30 October 2025, so a late filing can mean a gap in work authorisation.",
+    "links": [{ "label": "Form I-765 (USCIS)", "url": "https://www.uscis.gov/i-765" }],
+    "verify": true,
+    "sources": ["https://www.uscis.gov/i-765"], "lastReviewed": "2026-10-10"
+  },
+  {
+    "id": "gc-i485-travel", "visas": ["H1B", "H4"], "priority": 1,
+    "when": { "all": [{ "situation": "TRAVEL_SOON" }, { "stage": ["i485_pending", "i485_derivative"] }] }, "repeat": "perTrigger",
+    "title": "Travelling with a pending I-485",
+    "ask": "Will you re-enter with a valid advance parole document, or with a valid H-1B or H-4 visa stamp? Never leave with neither.",
+    "why": "Leaving the US with a pending I-485 and no advance parole abandons the application, unless you hold and re-enter in valid H-1B or H-4 status.",
+    "links": [{ "label": "Form I-131 (USCIS)", "url": "https://www.uscis.gov/i-131" }],
+    "sources": ["https://www.uscis.gov/i-131"], "lastReviewed": "2026-10-10"
+  }
+]
