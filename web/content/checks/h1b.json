@@ -53,8 +53,8 @@
     "title": "Changing employer",
     "ask": "Has the new employer actually filed the H-1B petition (you have the receipt notice, or at least the courier confirmation) before your first day?",
     "why": "Portability lets you start when USCIS receives a non-frivolous petition, not when it is approved. Starting before filing is unauthorised work.",
-    "links": [{ "label": "H-1B specialty occupations (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations" }],
-    "sources": ["https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations"], "lastReviewed": "2026-10-10"
+    "links": [{ "label": "H-1B specialty occupations (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" }],
+    "sources": ["https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"], "lastReviewed": "2026-10-10"
   },
   {
     "id": "h1b-change-i140-180", "visas": ["H1B"], "priority": 2,
@@ -98,9 +98,9 @@
     "title": "Travelling outside the US",
     "ask": "Have you confirmed with your employer or counsel that the September 2025 proclamation on H-1B entry (the $100,000 payment) does not apply to you before you travel?",
     "why": "USCIS guidance says it targets new petitions for workers outside the US, not extensions or existing visa holders, but the details and exceptions have changed more than once.",
-    "links": [{ "label": "H-1B news (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations" }],
+    "links": [{ "label": "H-1B news (USCIS)", "url": "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" }],
     "verify": true,
-    "sources": ["https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations"], "lastReviewed": "2026-10-10"
+    "sources": ["https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"], "lastReviewed": "2026-10-10"
   },
   {
     "id": "h1b-spouse-h4-ead", "visas": ["H1B"], "priority": 2,

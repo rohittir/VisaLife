@@ -16,7 +16,7 @@
     "ask": "Have you asked a CBP Deferred Inspection office to correct the I-94, or, if it was cut to your passport expiry, planned an I-539 extension or a re-entry with a renewed passport before it runs out?",
     "why": "Staying past the I-94 date, even with a valid I-797 or I-20, means you are out of status. Deferred Inspection fixes CBP mistakes; a passport-based short date needs a new I-94 in time.",
     "links": [
-      { "label": "CBP Deferred Inspection sites", "url": "https://www.cbp.gov/contact/deferred-inspection/overview-deferred-inspection" },
+      { "label": "CBP Deferred Inspection sites", "url": "https://www.cbp.gov/about/contact/ports/deferred-inspection-sites" },
       { "label": "Form I-539 (USCIS)", "url": "https://www.uscis.gov/i-539" }
     ],
     "sources": ["https://www.cbp.gov/travel/international-visitors/i-94", "https://www.uscis.gov/i-539"], "lastReviewed": "2026-10-10"
@@ -113,7 +113,7 @@
     "title": "Good housekeeping",
     "ask": "Do you know that USCIS, ICE and consulates never phone to demand payment, gift cards or passport details?",
     "why": "Indian nationals are a frequent target of impersonation calls threatening deportation. Hang up and check your case in your USCIS account instead.",
-    "links": [{ "label": "Avoid scams (USCIS)", "url": "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams" }],
-    "sources": ["https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams"], "lastReviewed": "2026-10-10"
+    "links": [{ "label": "Avoid scams (USCIS)", "url": "https://www.uscis.gov/avoid-scams" }],
+    "sources": ["https://www.uscis.gov/avoid-scams"], "lastReviewed": "2026-10-10"
   }
 ]
