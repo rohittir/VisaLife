@@ -79,12 +79,12 @@ function MonthYear({ question, value, onChange, deadline, ahead }) {
 
 // One control for any visas.json field: month and year (precision "month"), a date, a select or a number.
 // `value` is the stored string ("YYYY-MM", "YYYY-MM-DD", "EB2", ...); onChange gets the new string ("" when cleared).
-export default function FieldInput({ field, value, onChange, label = field.label, hideLabel = false }) {
+export default function FieldInput({ field, value, onChange, label = field.question ?? field.label, hideLabel = false }) {
   if (field.type === 'date' && field.precision === 'month') {
     return <MonthYear question={field.question ?? label} value={value} onChange={onChange} deadline={Boolean(field.deadline)} ahead={field.timing === 'ahead'} />;
   }
   return (
-    <label className="field">
+    <label className={`field${field.question ? ' ask' : ''}`}>
       <span className={hideLabel ? 'sr-only' : undefined}>{label}</span>
       {field.type === 'select' ? (
         <select value={value ?? ''} onChange={(e) => onChange(e.target.value)}>

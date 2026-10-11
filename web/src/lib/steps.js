@@ -23,6 +23,29 @@ export function parseFrontmatter(raw) {
   return { data, body: raw.slice(m[0].length) };
 }
 
+// Rules for the two optional Leaving-the-USA keys of a step's frontmatter; `destinations` is visas.json's leavingTo options.
+export function validateLeavingKeys(s, destinations) {
+  const errors = [];
+  if ('section' in s && !(typeof s.section === 'string' && s.section.trim())) errors.push('section must be a non-empty string');
+  if ('leavingTo' in s && !destinations.includes(s.leavingTo)) errors.push(`leavingTo must be one of ${destinations.join(', ')}`);
+  return errors;
+}
+
+// The Leaving-the-USA journey: a step with a `leavingTo` ("India" or "Another country") shows only for that destination
+// (profile.dates.leavingTo); steps without one always show, and with the destination unset only those show.
+export const visibleSteps = (steps, leavingTo) => steps.filter((s) => !s.leavingTo || s.leavingTo === leavingTo);
+
+// Consecutive steps with the same `section` frontmatter form one group, in order: [{ section, steps }].
+export function groupBySection(steps) {
+  const groups = [];
+  for (const s of steps) {
+    const last = groups[groups.length - 1];
+    if (last && last.section === s.section) last.steps.push(s);
+    else groups.push({ section: s.section, steps: [s] });
+  }
+  return groups;
+}
+
 // Short link text for a source URL: "8 CFR 214.2(f)(6)" for eCFR paragraph links (title from the path), else host/last-path-segment.
 export function sourceLabel(url) {
   const { hostname, pathname, hash } = new URL(url);

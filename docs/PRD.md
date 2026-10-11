@@ -210,9 +210,15 @@ Profile (device-local; synced when signed in; see TDD for schema):
 `checks{id → {done, at}}`. Tags derived for policy: `H1B`, `H4`, `F1`, `OPT`, `GC`, `TRAVEL`.
 
 Stages per visa (ids used by content):
-- H-1B: `new` · `working` · `gc_perm_i140` · `gc_waiting_pd` · `i485_pending` · `approved`
-- H-4: `no_ead` · `ead_eligible` · `ead_working` · `i485_derivative`
-- F-1: `enrolled` · `opt_applying` · `opt` · `stem_opt` · `h1b_selected` · `ending`
+- H-1B: `new` · `working` · `gc_perm_i140` · `gc_waiting_pd` · `i485_pending` · `approved` · `leaving`
+- H-4: `no_ead` · `ead_eligible` · `ead_working` · `i485_derivative` · `leaving`
+- F-1: `enrolled` · `opt_applying` · `opt` · `stem_opt` · `h1b_selected` · `ending` · `leaving`
+
+`leaving` ("Planning to leave the USA", hint "Soon, or within the next year") is last on every visa.
+Picking it replaces the current stage; switching back restores the old checks because answers are
+kept. It asks two optional things: where you are moving to (`leavingTo`: India or Another country)
+and the month you plan to leave (`leaveOn`, a future month only). Both live in the field group
+**Plans** in Me.
 
 ### A8.1 Date precision
 
@@ -224,6 +230,7 @@ resolved to a full date once (`resolveDates`) using the field's `assume`, always
 | month | passport expiry, visa stamp expiry, first month in H-1B, last I-20 travel signature | start (warn earlier) |
 | month | I-94 admit-until, I-797 end, EAD expiry, advance parole expiry, program end, OPT end, STEM OPT end | end (never claim it has passed, or that a filing window opened early) |
 | month | priority date, I-140 approved, spouse's I-140 approved, I-485 filed | end (never claim "current" or 180 days early) |
+| month | planned departure (`leaveOn`, future months only) | start (counts down from the 1st) |
 
 A day is stored only when the user adds it after being asked: an expiry whose month is the current
 month shows one "Add the exact day" card on Today, with Skip. Month-only deadlines are shown in
@@ -265,6 +272,21 @@ before EAD start, SEVP Portal) → On OPT (unemployment counter, lottery season,
 eligibility and timing) → STEM OPT (24 months, 150 days, I-983 evaluations, validation reports,
 employer change, H-1B attempts, alternatives) → Selected (I-129 window, COS vs consular,
 cap-gap, "switch my profile to H-1B") → Ending (grace, options).
+
+**Leaving the USA (all three visas, one shared set of steps, guidance only: no calculators or
+estimators).** Its own layout, not the stage stepper: a title, "X of Y steps done" and sections.
+The destination (`leavingTo`) can be set inline on the page; steps limited to one destination stay
+hidden until it is chosen, and the counts follow what is visible. Sections: Your status when you
+leave (last day and grace period, pending cases, records if you might return, family and US-born
+children) → Before you go: money (final pay and PTO, 401(k), IRA and Roth, HSA and FSA, stock
+awards, banks and credit, health insurance gap) → Taxes in the US (the year you leave,
+departing-alien certificate, state returns, Social Security and Medicare with no US-India
+agreement, selling a home, the 1% remittance tax) → Your US investments (the only finance set
+"Another country" needs) → Moving to India (RNOR, accounts under FEMA, bringing money in,
+disclosure and foreign tax credit, OCI, PAN and Aadhaar). Every tax or finance step ends with a
+line on when to talk to a CPA or lawyer. Today: the priority-date tile is hidden, planned
+departure shows in the Next deadline tile, and the extension and green-card nudges are
+suppressed; about ten `leave-*` checks replace them.
 
 ## A10. Policy feed requirements
 

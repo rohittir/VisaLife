@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validateVisas } from './visas.js';
+import { GROUPS, validateVisas } from './visas.js';
 
 const data = JSON.parse(readFileSync(new URL('../../content/visas.json', import.meta.url), 'utf8'));
 const clone = () => structuredClone(data);
@@ -85,4 +85,25 @@ test('the first H-1B month is not asked once an approved I-140 is confirmed, and
   };
   assert.deepEqual(bad({ dateSet: 'i140ApprovedOn' }), []);
   for (const v of ['gc_waiting_pd', 42, null, [{ dateSet: 'i140ApprovedOn' }]]) assert.match(bad(v)[0], /skipWhen must be a condition object/, JSON.stringify(v));
+});
+
+test('"Planning to leave the USA" is the last stage of every visa and asks only the destination and the month', () => {
+  for (const visa of ['H1B', 'H4', 'F1']) {
+    const s = data.visas[visa].stages.at(-1);
+    assert.deepEqual(
+      [s.id, s.label, s.hint, s.quick, s.fields],
+      ['leaving', 'Planning to leave the USA', 'Soon, or within the next year', ['leavingTo', 'leaveOn'], ['leavingTo', 'leaveOn', 'passportExpiry', 'visaStampExpiry']],
+      visa,
+    );
+  }
+  const { leavingTo, leaveOn } = data.fields;
+  assert.deepEqual(leavingTo.options, ['India', 'Another country']);
+  assert.equal(leavingTo.type, 'select');
+  assert.equal(leavingTo.question, 'Where are you moving to?');
+  assert.ok(leavingTo.unlock && leaveOn.unlock, 'Today can ask for both when onboarding was skipped');
+  assert.equal(leaveOn.question, 'When do you plan to leave?');
+  assert.equal(leaveOn.label, 'Planned departure');
+  // A future month only: no "already passed" choice, and the 1st of the month is the conservative end.
+  assert.deepEqual([leaveOn.type, leaveOn.precision, leaveOn.assume, leaveOn.deadline, leaveOn.timing], ['date', 'month', 'start', true, 'ahead']);
+  assert.ok(GROUPS.includes('Plans') && leavingTo.group === 'Plans' && leaveOn.group === 'Plans');
 });

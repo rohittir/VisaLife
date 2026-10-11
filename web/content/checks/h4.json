@@ -21,7 +21,7 @@
   },
   {
     "id": "h4-extension-with-primary", "visas": ["H4"], "priority": 1,
-    "when": { "dateWithin": { "field": "i94Expiry", "days": 180 } },
+    "when": { "all": [{ "dateWithin": { "field": "i94Expiry", "days": 180 } }, { "not": { "stage": ["leaving"] } }] },
     "title": "Your I-94 expires within 6 months",
     "short": "Is your I-539 filed with the extension?",
     "ask": "Is your I-539 (and your children's) being filed together with your spouse's H-1B extension, plus the I-765 renewal if you have an EAD?",

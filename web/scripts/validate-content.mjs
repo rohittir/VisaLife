@@ -2,7 +2,7 @@
 // when a check has no short headline, when visas.json breaks its date/quick rules, or when a journey points at a
 // step or stage that does not exist.
 import { readdirSync, readFileSync } from 'node:fs';
-import { parseFrontmatter } from '../src/lib/steps.js';
+import { parseFrontmatter, validateLeavingKeys } from '../src/lib/steps.js';
 import { validateVisas } from '../src/lib/visas.js';
 
 const dir = new URL('../content/checks/', import.meta.url);
@@ -26,6 +26,8 @@ for (const f of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
   }
 }
 
+const visasJson = JSON.parse(readFileSync(new URL('../content/visas.json', import.meta.url), 'utf8'));
+
 // Step done-state shares profile.checks with check answers, so step ids must not reuse check ids.
 const stepDir = new URL('../content/steps/', import.meta.url);
 const steps = new Set();
@@ -42,6 +44,7 @@ for (const f of readdirSync(stepDir).filter((f) => f.endsWith('.md'))) {
     if (s[k] == null || (Array.isArray(s[k]) && s[k].length === 0)) errors.push(`${where}: missing ${k}`);
   }
   if (typeof s.verify !== 'boolean') errors.push(`${where}: verify must be true or false`);
+  errors.push(...validateLeavingKeys(s, visasJson.fields.leavingTo.options).map((e) => `${where}: ${e}`));
   if (`${s.id}.md` !== f) errors.push(`${where}: id must match the file name`);
   if (seen.has(s.id)) errors.push(`${where}: id duplicates a check id`);
   if (steps.has(s.id)) errors.push(`${where}: duplicate step id`);
@@ -52,7 +55,6 @@ for (const f of readdirSync(stepDir).filter((f) => f.endsWith('.md'))) {
   }
 }
 
-const visasJson = JSON.parse(readFileSync(new URL('../content/visas.json', import.meta.url), 'utf8'));
 errors.push(...validateVisas(visasJson).map((e) => `visas.json: ${e}`));
 const { visas } = visasJson;
 const journeyDir = new URL('../content/journeys/', import.meta.url);

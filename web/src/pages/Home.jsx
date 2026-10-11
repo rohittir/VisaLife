@@ -39,10 +39,11 @@ function CheckRow({ check, state, done, onOpen }) {
   );
 }
 
-// Nearest dated deadline (fields marked `deadline` in visas.json), from the resolved dates.
-function nextDeadline(dates, today) {
+// Nearest dated deadline (fields marked `deadline` in visas.json), from the resolved dates. A plan (the "Plans" group:
+// planned departure) counts only in the stage that asks for it, so it cannot linger where Me cannot edit it.
+function nextDeadline(dates, today, stage) {
   return Object.entries(dates)
-    .filter(([k]) => VISAS.fields[k]?.deadline)
+    .filter(([k]) => VISAS.fields[k]?.deadline && (VISAS.fields[k].group !== 'Plans' || stage?.fields.includes(k)))
     .map(([k, v]) => ({ k, n: daysUntil(v, today) }))
     .filter((d) => d.n >= 0)
     .sort((a, b) => a.n - b.n)[0];
@@ -83,8 +84,8 @@ export default function Home() {
   const rest = open.filter((c) => c !== hero);
   const selected = CHECKS.find((c) => c.id === sel);
 
-  const deadline = nextDeadline(dates, today);
-  const pd = ['H1B', 'H4'].includes(profile.visa) && dates.priorityDate && dates.ebCategory && status(BULLETINS, dates.priorityDate, dates.ebCategory);
+  const deadline = nextDeadline(dates, today, stage);
+  const pd = ['H1B', 'H4'].includes(profile.visa) && profile.stage !== 'leaving' && dates.priorityDate && dates.ebCategory && status(BULLETINS, dates.priorityDate, dates.ebCategory);
   const f1 = profile.visa === 'F1' ? f1Tile(profile, dates, today, deadline) : null;
   const prompt = nextPrompt(stage, profile, today);
   // A month-only expiry whose month is this month: only the day says whether it has passed. Asked once, in place of the prompt.
