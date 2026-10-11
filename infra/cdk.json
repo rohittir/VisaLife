@@ -1,3 +1,10 @@
 {
-  "app": "node bin/visalife.js"
+  "app": "node bin/visalife.js",
+  "context": {
+    "domain": "visalife.workingalien.com",
+    "certificateArn": "arn:aws:acm:us-east-1:135379837669:certificate/de50c5f8-2668-44b8-afeb-b43a74abbb6c",
+    "hostedZoneId": "Z005858730WZGO4A9LJ6O",
+    "zoneName": "workingalien.com",
+    "indexable": false
+  }
 }

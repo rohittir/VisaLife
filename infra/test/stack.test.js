@@ -44,7 +44,33 @@ test('hashed assets are immutable, pages are not cached, HTTP redirects', () => 
   assert.match(policies, /"Value":"no-cache"/);
 });
 
-test('noindex until a domain is configured', () => {
-  assert.match(json(synth().findResources('AWS::CloudFront::ResponseHeadersPolicy')), /X-Robots-Tag/);
-  assert.doesNotMatch(json(synth({ domain: 'example.com' }).findResources('AWS::CloudFront::ResponseHeadersPolicy')), /X-Robots-Tag/);
+const policies = (t) => JSON.stringify(t.findResources('AWS::CloudFront::ResponseHeadersPolicy'));
+const custom = { domain: 'visalife.example.com', certificateArn: 'arn:aws:acm:us-east-1:111111111111:certificate/abc', hostedZoneId: 'Z123', zoneName: 'example.com' };
+
+test('noindex stays on, even with a custom domain, until indexable is set', () => {
+  assert.match(policies(synth()), /X-Robots-Tag/);
+  assert.match(policies(synth(custom)), /X-Robots-Tag/);
+  assert.doesNotMatch(policies(synth({ ...custom, indexable: true })), /X-Robots-Tag/);
+});
+
+test('custom domain: alias, certificate, TLS 1.2 and DNS records', () => {
+  const t = synth(custom);
+  const cfg = Object.values(t.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig;
+  assert.deepEqual(cfg.Aliases, ['visalife.example.com']);
+  assert.equal(cfg.ViewerCertificate.AcmCertificateArn, custom.certificateArn);
+  assert.equal(cfg.ViewerCertificate.MinimumProtocolVersion, 'TLSv1.2_2021');
+  assert.equal(cfg.ViewerCertificate.SslSupportMethod, 'sni-only');
+  t.hasResourceProperties('AWS::Route53::RecordSet', { Name: 'visalife.example.com.', Type: 'A', HostedZoneId: 'Z123' });
+  t.hasResourceProperties('AWS::Route53::RecordSet', { Name: 'visalife.example.com.', Type: 'AAAA' });
+});
+
+test('without a domain there is no alias and no DNS record', () => {
+  const t = synth();
+  const cfg = Object.values(t.findResources('AWS::CloudFront::Distribution'))[0].Properties.DistributionConfig;
+  assert.equal(cfg.Aliases, undefined);
+  t.resourceCountIs('AWS::Route53::RecordSet', 0);
+});
+
+test('a domain without a certificate is refused', () => {
+  assert.throws(() => synth({ domain: 'visalife.example.com' }), /certificateArn/);
 });

@@ -1,6 +1,6 @@
 # VisaLife by WorkingAlien — Deployment plan: S3 + CloudFront
 
-Status: stage 1 implemented in `infra/`, deployed by hand as `VisaLife-prod` in `us-east-1`. Stages 2 to 4 are still plans.
+Status: stages 1 and 3 implemented in `infra/` and deployed by hand as `VisaLife-prod` in `us-east-1`, on `visalife.workingalien.com`. Stages 2 and 4 are still plans.
 
 ## 1. Goal
 
@@ -67,13 +67,15 @@ Test: one `aws-cdk-lib/assertions` test for public-access block, OAC, the 403 an
 - AWS access through OIDC, no stored keys. One role `VisaLife-github-deploy`, trusted only for `repo:rohittir/VisaLife:ref:refs/heads/main`, allowed to assume the CDK bootstrap roles and nothing else.
 - Needs the `workflow` scope on the GitHub token, which is present.
 
-## 8. Custom domain (Stage 3)
+## 8. Custom domain (Stage 3): done
 
-Needs a domain name first. Then:
-1. DNS: Route 53 hosted zone, or the registrar's DNS with a CNAME.
-2. ACM certificate in `us-east-1`, DNS validated.
-3. `domainNames` and `certificate` on the distribution, `minimumProtocolVersion` TLS 1.2 (CloudFront ignores it on the default `cloudfront.net` certificate, which is fixed at TLS 1.0 and above), alias A and AAAA records.
-4. Turn on indexing for prod, add HSTS preload only after the domain is settled.
+`visalife.workingalien.com`, set in `infra/cdk.json` context (`domain`, `certificateArn`, `hostedZoneId`, `zoneName`).
+
+- **Certificate:** an ACM certificate in `us-east-1` covering `workingalien.com` and `*.workingalien.com`.
+- **DNS:** the stack creates the A and AAAA alias records in the account's Route 53 zone for `workingalien.com`.
+- **TLS:** `minimumProtocolVersion` is TLS 1.2 now that a custom certificate is attached.
+- **Search engines:** still `noindex`. Set `indexable` to `true` in `cdk.json` and redeploy once the content marked `verify` has been reviewed. Add HSTS preload only after that.
+- **Unset the domain** (remove `domain` from the context) and the stack serves the `cloudfront.net` address again.
 
 ## 9. Backend hook (Stage 4, from TDD B5)
 
