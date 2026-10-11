@@ -33,8 +33,8 @@ function gapText(g) {
   return `Cut-off is ${span} ${g.behind ? 'behind' : 'ahead of'} your date.`;
 }
 
-// One field: the day inside `month` ("YYYY-MM"). Saving turns the month-only date into an exact one.
-export function ExactDay({ month, onSave }) {
+// One field: the day inside `month` ("YYYY-MM"). Saving turns the month-only date into an exact one; Skip (optional) leaves it.
+export function ExactDay({ month, onSave, onSkip }) {
   const [v, setV] = useState('');
   return (
     <form className="exact" onSubmit={(e) => { e.preventDefault(); if (v) onSave(v); }}>
@@ -43,6 +43,7 @@ export function ExactDay({ month, onSave }) {
         <input type="date" value={v} min={`${month}-01`} max={monthEnd(month)} onChange={(e) => setV(e.target.value)} />
       </label>
       <button className="btn solid" disabled={!v}>Save day</button>
+      {onSkip && <button type="button" className="btn outline" onClick={onSkip}>Skip</button>}
     </form>
   );
 }

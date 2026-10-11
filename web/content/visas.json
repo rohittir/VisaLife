@@ -28,26 +28,26 @@
         { "id": "opt", "label": "On OPT", "hint": "Post-completion OPT EAD in hand", "quick": ["optEnd"], "fields": ["optEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate", "unemploymentDaysUsed"] },
         { "id": "stem_opt", "label": "On STEM OPT", "hint": "24-month extension", "quick": ["stemOptEnd"], "fields": ["stemOptEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate", "unemploymentDaysUsed"] },
         { "id": "h1b_selected", "label": "Selected in the H-1B lottery", "hint": "Petition filed or being filed", "quick": [], "fields": ["optEnd", "stemOptEnd", "passportExpiry", "visaStampExpiry"] },
-        { "id": "ending", "label": "OPT ending, not selected", "hint": "Grace period and options", "quick": ["optEnd", "stemOptEnd"], "fields": ["optEnd", "stemOptEnd", "passportExpiry"] }
+        { "id": "ending", "label": "OPT ending, not selected", "hint": "Grace period and options", "quick": [], "fields": ["optEnd", "stemOptEnd", "passportExpiry"] }
       ]
     }
   },
   "fields": {
-    "i94Expiry": { "label": "I-94 \"Admit Until\" date", "type": "date", "precision": "month", "assume": "end", "group": "Documents", "deadline": true, "unlock": "Add your I-94 date to see how long you can stay" },
-    "i797Expiry": { "label": "Current I-797 valid until", "type": "date", "precision": "month", "assume": "end", "group": "Documents", "deadline": true, "unlock": "Add your I-797 end date to see your extension window" },
-    "passportExpiry": { "label": "Passport expiry", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "deadline": true, "unlock": "Add your passport expiry month so we can warn you before it gets close" },
-    "visaStampExpiry": { "label": "US visa stamp expiry", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "deadline": true },
+    "i94Expiry": { "label": "I-94 \"Admit Until\" date", "question": "When does your I-94 end?", "type": "date", "precision": "month", "assume": "end", "group": "Documents", "deadline": true, "unlock": "Add your I-94 date to see how long you can stay" },
+    "i797Expiry": { "label": "Current I-797 valid until", "question": "When does your I-797 end?", "type": "date", "precision": "month", "assume": "end", "group": "Documents", "deadline": true, "unlock": "Add your I-797 end date to see your extension window" },
+    "passportExpiry": { "label": "Passport expiry", "question": "When does your passport expire?", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "deadline": true, "unlock": "Add your passport expiry month so we can warn you before it gets close" },
+    "visaStampExpiry": { "label": "US visa stamp expiry", "question": "When does your US visa stamp expire?", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "deadline": true },
     "h1bFirstStart": { "label": "First month in H-1B status", "type": "date", "precision": "month", "assume": "start", "group": "Documents", "unlock": "Add the month you first held H-1B to see your six-year limit" },
     "ebCategory": { "label": "Green card category", "type": "select", "options": ["EB1", "EB2", "EB3"], "group": "Green card", "unlock": "Which green card category are you in?" },
     "priorityDate": { "label": "Priority date", "type": "date", "precision": "month", "assume": "end", "group": "Green card", "unlock": "Add your priority date to see how close it is to the cut-off" },
     "i140ApprovedOn": { "label": "I-140 approved on", "type": "date", "precision": "month", "assume": "end", "group": "Green card" },
     "primaryI140ApprovedOn": { "label": "Spouse's I-140 approved on", "type": "date", "precision": "month", "assume": "end", "group": "Green card", "unlock": "Add the month your spouse's I-140 was approved to see if you can apply for an H-4 EAD" },
     "i485FiledOn": { "label": "I-485 filed on", "type": "date", "precision": "month", "assume": "end", "group": "Green card" },
-    "eadExpiry": { "label": "EAD card expiry", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your EAD expiry date to get a renewal reminder" },
-    "apExpiry": { "label": "Advance parole expiry", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true },
-    "programEnd": { "label": "Program end date (I-20)", "type": "date", "precision": "month", "assume": "end", "group": "Documents", "deadline": true, "unlock": "Add your program end date to see your OPT filing window" },
-    "optEnd": { "label": "OPT EAD end", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your OPT end date to see your STEM OPT and grace-period dates" },
-    "stemOptEnd": { "label": "STEM OPT end", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your STEM OPT end date to see your grace-period dates" },
+    "eadExpiry": { "label": "EAD card expiry", "question": "When does your EAD card end?", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your EAD expiry date to get a renewal reminder" },
+    "apExpiry": { "label": "Advance parole expiry", "question": "When does your advance parole end?", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true },
+    "programEnd": { "label": "Program end date (I-20)", "question": "When does your program end?", "type": "date", "precision": "month", "assume": "end", "group": "Documents", "deadline": true, "unlock": "Add your program end date to see your OPT filing window" },
+    "optEnd": { "label": "OPT EAD end", "question": "When does your OPT end?", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your OPT end date to see your STEM OPT and grace-period dates" },
+    "stemOptEnd": { "label": "STEM OPT end", "question": "When does your STEM OPT end?", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your STEM OPT end date to see your grace-period dates" },
     "travelSignatureDate": { "label": "Last I-20 travel signature", "type": "date", "precision": "month", "assume": "start", "group": "Documents" },
     "timeOutsideUsDays": { "label": "Full days outside the US since then", "type": "number" },
     "unemploymentDaysUsed": { "label": "Unemployment days used so far", "type": "number" }

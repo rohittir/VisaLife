@@ -106,3 +106,48 @@ test('month-only deadlines read as months, not days', () => {
   assert.equal(d.monthsLabel('2027-03', t), '5 months');
   assert.equal(d.monthsLabel('2028-01', t), '15 months');
 });
+
+test('"passed" is a complete answer: it resolves to yesterday and starts no OPT or STEM derivation', () => {
+  const r = d.resolveDates({ optEnd: d.PASSED, stemOptEnd: d.PASSED, i797Expiry: d.PASSED, passportExpiry: '2027-06' }, fields, today);
+  assert.equal(r.optEnd, '2026-10-09');
+  assert.equal(r.stemOptEnd, '2026-10-09');
+  assert.equal(r.i797Expiry, '2026-10-09');
+  assert.equal(r.passportExpiry, '2027-06-01'); // others unchanged
+  assert.ok(!('optStart' in r) && !('stemOptStart' in r));
+  // one passed, one entered: only the entered one derives a start
+  const mixed = d.resolveDates({ optEnd: d.PASSED, stemOptEnd: '2028-02' }, fields, today);
+  assert.ok(!('optStart' in mixed));
+  assert.equal(mixed.stemOptStart, '2026-03-01');
+  assert.ok(d.daysUntil(r.optEnd, today) < 0);
+  assert.equal(d.resolveDates({ optEnd: d.PASSED }, fields).optEnd, d.addDays(d.toISO(new Date()), -1)); // today defaults to now
+});
+
+test('"passed" reads as past, "Already passed", and never as NaN', () => {
+  assert.equal(d.timingOf(d.PASSED, today), 'past');
+  assert.equal(d.formatDate(d.PASSED), 'Already passed');
+  assert.equal(d.monthsLabel(d.PASSED, today), 'Already passed');
+  assert.ok(!/NaN/.test(d.monthsLabel('', today)) && !/NaN/.test(d.monthsLabel('soon', today)));
+});
+
+test('stored dates: anything that is not YYYY-MM, YYYY-MM-DD or "passed" is dropped from date fields only', () => {
+  const clean = d.cleanDates(
+    {
+      i94Expiry: '2027-03', // kept
+      i797Expiry: '2027-03-05', // kept
+      optEnd: d.PASSED, // kept: a deadline
+      stemOptEnd: 'soon', // dropped
+      eadExpiry: '2026-13', // dropped: not a month
+      passportExpiry: 12345, // dropped: not a string
+      apExpiry: '', // dropped
+      priorityDate: d.PASSED, // dropped: only deadlines can be "passed"
+      i140ApprovedOn: '05/10/2026', // dropped
+      ebCategory: 'EB2', // select: untouched
+      unemploymentDaysUsed: 30, // number: untouched
+      mystery: 'whatever', // not in visas.json: untouched
+    },
+    fields,
+  );
+  assert.deepEqual(clean, { i94Expiry: '2027-03', i797Expiry: '2027-03-05', optEnd: d.PASSED, ebCategory: 'EB2', unemploymentDaysUsed: 30, mystery: 'whatever' });
+  assert.doesNotThrow(() => d.resolveDates(clean, fields, today));
+  assert.deepEqual(d.cleanDates(undefined, fields), {});
+});

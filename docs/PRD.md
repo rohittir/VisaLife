@@ -61,9 +61,10 @@ Non-goals (Phase 1)
 7. **Dates never feel like homework.** Onboarding asks for at most two dates, both skippable.
    Every date is month and year only; the exact day is asked for only when it decides something
    (a priority date in the cut-off's month, or an expiry whose month is this month). Expiry-type
-   dates first ask "Already passed" or "Still ahead", which shortens the year list and hides
-   months that cannot be true. A missing date is asked for later, in context, one at a time,
-   and a dismissed ask stays dismissed.
+   dates ask a plain question ("When does your I-94 end?") with two stacked rows, "Still ahead"
+   (month and year pickers) and "Already passed" ("No date needed"). Already passed is a complete
+   answer: nothing else is required. A missing date is asked for later, in context, one at a time,
+   and every Skip (onboarding, the date prompt, the exact-day card) is remembered.
 
 ## A6. Core experience: "Check now" (profile-driven checklist)
 
@@ -225,9 +226,13 @@ resolved to a full date once (`resolveDates`) using the field's `assume`, always
 | month | priority date, I-140 approved, spouse's I-140 approved, I-485 filed | end (never claim "current" or 180 days early) |
 
 A day is stored only when the user adds it after being asked: an expiry whose month is the current
-month shows one "Add the exact day" row on Today. Month-only deadlines are shown in months ("This
-month", "Next month", "5 months"), not days. Expiry-type fields (`deadline` in `visas.json`) offer
-"Already passed" / "Still ahead" before the pickers.
+month shows one "Add the exact day" card on Today, with Skip. Month-only deadlines are shown in
+months ("This month", "Next month", "5 months"), not days. Expiry-type fields (`deadline` in
+`visas.json`) ask their `question` with two radio rows, "Still ahead" and "Already passed".
+"Already passed" is stored as `passed`: no month or year is needed, and picking them after it is
+optional. For checks it counts as a date in the past (an I-797 or program end that has passed still
+raises the 240-day and OPT-window checks), and countdown tiles ignore it. A field with
+`timing: "ahead"` (a planned date) shows only the pickers.
 
 OPT and STEM OPT start are derived from the end date (12 and 24 months). Day counts are numbers
 under Advanced in Me and never asked in onboarding.

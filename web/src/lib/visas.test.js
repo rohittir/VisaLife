@@ -21,7 +21,9 @@ test('every stage has at most two quick fields and each exists in the stage', ()
   assert.deepEqual(quick('H1B', 'working'), ['i94Expiry']);
   assert.deepEqual(quick('H4', 'ead_working'), ['eadExpiry']);
   assert.deepEqual(quick('F1', 'stem_opt'), ['stemOptEnd']);
-  assert.deepEqual(quick('F1', 'ending'), ['optEnd', 'stemOptEnd']);
+  // Both ask nothing in onboarding: Today asks for each date one at a time, where "Already passed" is one tap.
+  assert.deepEqual(quick('F1', 'ending'), []);
+  assert.deepEqual(quick('F1', 'h1b_selected'), []);
 });
 
 test('green card category offers EB-1, EB-2 and EB-3, each present in the bulletin data', () => {
@@ -56,4 +58,18 @@ test('the validator rejects bad precision, assume and quick shapes', () => {
   assert.match(bad((d) => (d.visas.H1B.stages[0].quick = ['priorityDate']))[0], /not in the stage/);
   assert.match(bad((d) => (d.visas.H1B.stages[1].quick = ['timeOutsideUsDays']))[0], /number field/);
   assert.match(bad((d) => delete d.visas.H1B.stages[0].quick)[0], /quick must be a list/);
+});
+
+test('date questions are plain sentences, and a field can be limited to future dates', () => {
+  for (const k of ['i94Expiry', 'i797Expiry', 'eadExpiry', 'apExpiry', 'programEnd', 'optEnd', 'stemOptEnd', 'passportExpiry', 'visaStampExpiry'])
+    assert.match(data.fields[k].question, /^When does your .+\?$/, k);
+  const bad = (edit) => {
+    const d = clone();
+    edit(d);
+    return validateVisas(d);
+  };
+  assert.deepEqual(bad((d) => (d.fields.i94Expiry.timing = 'ahead')), []);
+  assert.match(bad((d) => (d.fields.i94Expiry.timing = 'passed'))[0], /timing must be "ahead"/);
+  assert.match(bad((d) => (d.fields.ebCategory.timing = 'ahead'))[0], /only apply to date fields/);
+  assert.match(bad((d) => (d.fields.i94Expiry.question = ''))[0], /question/);
 });

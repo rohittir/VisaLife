@@ -69,7 +69,7 @@ export default function Home() {
   const [changing, setChanging] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const today = useMemo(() => new Date(), []);
-  const dates = useMemo(() => resolveDates(profile.dates, VISAS.fields), [profile.dates]);
+  const dates = useMemo(() => resolveDates(profile.dates, VISAS.fields, today), [profile.dates, today]);
   // Checks and the bulletin only ever see full dates; rawDates keeps what was entered (for the exact-day case).
   const { open, done } = useMemo(
     () => evaluate({ ...profile, dates, rawDates: profile.dates }, CHECKS, today, BULLETINS),
@@ -89,9 +89,12 @@ export default function Home() {
   const prompt = nextPrompt(stage, profile);
   // A month-only expiry whose month is this month: only the day says whether it has passed. Asked once, in place of the prompt.
   const thisMonth = today.toISOString().slice(0, 7);
-  const dayField = Object.keys(profile.dates).find((k) => VISAS.fields[k]?.deadline && VISAS.fields[k].assume === 'end' && profile.dates[k] === thisMonth);
+  const dayField = Object.keys(profile.dates).find(
+    (k) => VISAS.fields[k]?.deadline && VISAS.fields[k].assume === 'end' && profile.dates[k] === thisMonth && !profile.dismissed?.includes(`day:${k}`),
+  );
 
   const setDate = (k, v) => update((p) => ({ dates: { ...p.dates, [k]: v || undefined } }));
+  const dismiss = (key) => update((p) => ({ dismissed: [...(p.dismissed ?? []), key] }));
   const toggle = (id) =>
     update((p) => {
       const on = !p.situations.includes(id);
@@ -180,9 +183,9 @@ export default function Home() {
       {dayField ? (
         <section className="card" aria-label="Add the exact day">
           <p className="muted">Your {VISAS.fields[dayField].label} is this month. The exact day tells us whether it has passed.</p>
-          <ExactDay month={profile.dates[dayField]} onSave={(iso) => setDate(dayField, iso)} />
+          <ExactDay month={profile.dates[dayField]} onSave={(iso) => setDate(dayField, iso)} onSkip={() => dismiss(`day:${dayField}`)} />
         </section>
-      ) : prompt && <JitPrompt key={prompt} fieldId={prompt} onSave={(v) => setDate(prompt, v)} onDismiss={() => update((p) => ({ dismissed: [...(p.dismissed ?? []), prompt] }))} />}
+      ) : prompt && <JitPrompt key={prompt} fieldId={prompt} onSave={(v) => setDate(prompt, v)} onDismiss={() => dismiss(prompt)} />}
 
       {done.length > 0 && (
         <ul className="list">

@@ -1,20 +1,17 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
+import { TABS, tabIndex } from '../lib/tabs.js';
 import Icon from './Icon.jsx';
 
-const TABS = [
-  ['/home', 'Today', 'home'],
-  ['/journey', 'Journey', 'route'],
-  ['/policy', 'Policy', 'gavel'],
-  ['/me', 'Me', 'user'],
-];
-
+// `--i` is the active tab's position: the one orange pill slides under the labels (see .pill in styles.css).
 export default function BottomTabs() {
+  const { pathname } = useLocation();
   return (
     <nav className="tabs" aria-label="Main">
-      <ul>
+      <ul style={{ '--i': tabIndex(pathname) }}>
+        <li className="pill" aria-hidden="true" />
         {TABS.map(([to, label, icon]) => (
           <li key={to}>
-            <NavLink to={to} className={({ isActive }) => (isActive ? 'tab active' : 'tab')}>
+            <NavLink to={to} viewTransition className={({ isActive }) => (isActive ? 'tab active' : 'tab')}>
               <Icon name={icon} />
               {label}
             </NavLink>

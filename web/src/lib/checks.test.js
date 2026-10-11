@@ -131,3 +131,13 @@ test('the exact-day check is about the chart USCIS accepts', () => {
   assert.ok(!ids(evaluate(p, checks, today, bulletin('U', '2015-01-15', 'finalAction'))).includes('gc-pd-exact-day'));
   assert.ok(ids(evaluate(p, checks, today, bulletin('2015-01-15', 'U', 'finalAction'))).includes('gc-pd-exact-day'));
 });
+
+test('an I-797 marked "Already passed" fires the 240-day check; a passed I-94 stays quiet', () => {
+  const resolved = (dates, p = h1b) => ({ ...p, dates: resolveDates(dates, fields, today) });
+  assert.ok(ids(evaluate(resolved({ i797Expiry: 'passed' }), checks, today)).includes('h1b-240-day'));
+  const quiet = ids(evaluate(resolved({ i94Expiry: 'passed' }), checks, today));
+  assert.ok(!quiet.includes('h1b-240-day') && !quiet.includes('h1b-extension-window'));
+  // a passed program end fires the late-OPT check for an enrolled F-1 student
+  const f1 = { visa: 'F1', stage: 'enrolled', flags: {}, situations: [], checks: {} };
+  assert.ok(ids(evaluate(resolved({ programEnd: 'passed' }, f1), checks, today)).includes('f1-opt-window-late'));
+});

@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { VISAS } from './content.js';
+import { cleanDates } from './dates.js';
 
 const KEY = 'visalife.profile';
 const Ctx = createContext(null);
@@ -8,7 +10,9 @@ export const EMPTY = { v: 1, nationality: 'IN', visa: null, stage: null, dates: 
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...EMPTY, ...JSON.parse(raw) } : null;
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    return { ...EMPTY, ...p, dates: cleanDates(p?.dates, VISAS.fields) };
   } catch {
     return null;
   }

@@ -14,10 +14,13 @@ export default function Onboarding() {
   const [stage, setStage] = useState(profile?.stage ?? null);
   const [dates, setDates] = useState({});
   const quick = stageOf(visa, stage)?.quick ?? [];
+  const noun = quick.every((k) => VISAS.fields[k].type === 'date') ? 'date' : 'question'; // a quick field can be a select
   const step = !visa ? 0 : !stage ? 1 : 2;
 
+  // Quick fields left empty count as skipped: Today must not ask for the same date straight away.
   const finish = (d, s = stage) => {
-    update({ visa, stage: s, dates: { ...(profile?.dates ?? {}), ...d } });
+    const skipped = stageOf(visa, s).quick.filter((k) => !d[k]);
+    update({ visa, stage: s, dates: { ...(profile?.dates ?? {}), ...d }, dismissed: [...new Set([...(profile?.dismissed ?? []), ...skipped])] });
     nav('/home', { replace: true });
   };
   // A stage with nothing to ask goes straight to Today.
@@ -76,12 +79,13 @@ export default function Onboarding() {
 
         {step === 2 && (
           <>
-            <h1 className="big-title">{quick.length > 1 ? 'Two quick dates' : 'One quick date'}</h1>
-            <p className="muted">Only if you have them handy. Each one starts a countdown. Nothing leaves this device.</p>
+            <h1 className="big-title">{quick.length > 1 ? `Two quick ${noun}s` : `One quick ${noun}`}</h1>
+            <p className="muted">Each answer turns on a countdown or a check. Nothing leaves this device.</p>
             <div className="form">
               {quick.map((k) => (
                 <FieldInput key={k} field={VISAS.fields[k]} value={dates[k]} onChange={(v) => setDates((d) => ({ ...d, [k]: v }))} />
               ))}
+              <p className="label">Optional. You can skip this.</p>
             </div>
             <div className="actions stacked">
               <button type="button" className="btn primary wide" onClick={() => finish(entered)}>Show my checks</button>
