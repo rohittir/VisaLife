@@ -30,6 +30,18 @@
     "sources": ["https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html"], "lastReviewed": "2026-10-10"
   },
   {
+    "id": "gc-pd-current-filing", "visas": ["H1B", "H4"], "priority": 1,
+    "when": { "all": [{ "pdCurrent": "datesForFiling" }, { "stage": ["gc_perm_i140", "gc_waiting_pd", "no_ead", "ead_eligible", "ead_working"] }] },
+    "title": "Your priority date is current for filing",
+    "ask": "Your priority date is before the latest Dates for Filing cut-off. Have you confirmed with your employer or counsel whether USCIS accepts that chart this month, and started the I-485 (with the work permit and advance parole forms)?",
+    "why": "USCIS says each month which chart it accepts. When it accepts Dates for Filing, you can file the I-485 now and get an EAD and advance parole while you wait; dates can retrogress, so the first eligible month matters.",
+    "links": [
+      { "label": "Which chart to use this month (USCIS)", "url": "https://www.uscis.gov/green-card/green-card-processes-and-procedures/visa-availability-priority-dates/adjustment-of-status-filing-charts-from-the-visa-bulletin" },
+      { "label": "Form I-485 (USCIS)", "url": "https://www.uscis.gov/i-485" }
+    ],
+    "sources": ["https://www.uscis.gov/green-card/green-card-processes-and-procedures/visa-availability-priority-dates/adjustment-of-status-filing-charts-from-the-visa-bulletin", "https://www.uscis.gov/i-485"], "lastReviewed": "2026-10-10"
+  },
+  {
     "id": "gc-i485-docs-ready", "visas": ["H1B", "H4"], "priority": 4,
     "when": { "stage": ["gc_waiting_pd"] },
     "title": "Waiting for your priority date",

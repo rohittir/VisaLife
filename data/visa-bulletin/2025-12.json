@@ -1,0 +1,15 @@
+{
+  "month": "2025-12",
+  "finalAction": {
+    "EB1": "2022-03-15",
+    "EB2": "2013-05-15",
+    "EB3": "2013-09-22"
+  },
+  "datesForFiling": {
+    "EB1": "2023-04-15",
+    "EB2": "2013-12-01",
+    "EB3": "2014-08-15"
+  },
+  "uscisChart": "datesForFiling",
+  "source": "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2026/visa-bulletin-for-december-2025.html"
+}

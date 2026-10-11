@@ -47,6 +47,15 @@ test('monthly checks come back each month', () => {
   assert.ok(!ids(evaluate(p, checks, today)).includes('gc-bulletin-monthly'));
 });
 
+test('pdCurrent uses the bulletin cut-off for the profile category', () => {
+  const bulletins = [{ month: '2026-09', finalAction: { EB2: 'U', EB3: '2014-01-01' }, datesForFiling: { EB2: '2015-01-15', EB3: '2015-01-15' }, uscisChart: 'finalAction' }];
+  const p = { ...h1b, stage: 'gc_waiting_pd', dates: { priorityDate: '2014-05-01', ebCategory: 'EB2' } };
+  assert.ok(ids(evaluate(p, checks, today, bulletins)).includes('gc-pd-current-filing'));
+  assert.ok(!ids(evaluate(p, checks, today)).includes('gc-pd-current-filing'));
+  p.dates = { priorityDate: '2015-01-15', ebCategory: 'EB2' };
+  assert.ok(!ids(evaluate(p, checks, today, bulletins)).includes('gc-pd-current-filing'));
+});
+
 test('visa filter and F-1 computed unemployment', () => {
   const f1 = { visa: 'F1', stage: 'opt', dates: { unemploymentDaysUsed: 50 }, flags: {}, situations: [], checks: {} };
   const r = ids(evaluate(f1, checks, today));

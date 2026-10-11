@@ -85,11 +85,20 @@ VisaLife/
   fails the build if any step/check lacks `sources` or `lastReviewed`.
 - **Checklist engine (`checks.js`):** pure function `evaluate(profile, checks, today) → [{check, reason}]`
   sorted by `priority` then soonest date. Rule DSL is in B6.
-- **Priority date (`bulletin.js`):** loads all `data/visa-bulletin/*.json`; `status(pd, category, month)`
-  → `{finalAction: 'current'|'not current', datesForFiling: ..., chartUsedByUscis}`;
-  `movement(category, months=12)` → array of day-deltas; `estimate()` = remaining days ÷ mean
-  monthly movement over 12 months, rendered as "roughly N years at the last 12 months' pace",
-  with a hard cap and a disclaimer when movement ≤ 0.
+- **Priority date (`bulletin.js`):** pure; `content.js` globs `data/visa-bulletin/*.json` into
+  `BULLETINS` and callers pass that array in as the first argument (so node tests can feed it from `fs`).
+  Each file: `{month: "YYYY-MM", finalAction: {EB1, EB2, EB3}, datesForFiling: {EB1, EB2, EB3},
+  uscisChart: 'datesForFiling'|'finalAction', source}` for the INDIA column; a cut-off is an ISO date,
+  `"C"` (current) or `"U"` (unavailable). `latest(b)`; `status(b, pd, category)` uses the latest bulletin
+  → `{month, finalAction: 'current'|'not current', datesForFiling: ..., chartUsedByUscis, cutoffs}`
+  (null without a PD or category); `history(b, category, count=12)` → `[{month, cutoff}]` of Final Action
+  (feeds the Sparkline); `movement(b, category, months=12)` → day-deltas, null across C/U;
+  `estimate(b, pd, category)` = days from the last dated Final Action cut-off to the PD ÷ average monthly
+  movement over the last 12 months (first dated cut-off to last, divided by months to the latest
+  bulletin, so "U" months count as no movement) → years; 0 when current, null when movement ≤ 0.
+  Rendered as "roughly N years at the last 12 months' pace, not a prediction", capped at
+  "more than 50 years". New bulletins: `node scripts/fetch-visa-bulletin.mjs <url|saved.html>`, then add
+  `uscisChart` from USCIS's filing-charts page.
 - **Auth:** `react-oidc-context` with `authority = https://cognito-idp.<region>.amazonaws.com/<poolId>`,
   `client_id`, `redirect_uri = <origin>/auth/callback`, `response_type = code`,
   `scope = openid email profile`. "Continue with Google" calls `signinRedirect({extraQueryParams:{identity_provider:'Google'}})`;

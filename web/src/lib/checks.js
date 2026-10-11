@@ -1,5 +1,6 @@
 // Evaluates content/checks/*.json rules against a profile. Pure; `today` is injectable for tests.
 import { daysUntil, inSeason, sameMonth, h1bSixYearEnd, parseISO, unemploymentRemaining } from './dates.js';
+import { status } from './bulletin.js';
 
 function computed(name, profile, today) {
   const d = profile.dates || {};
@@ -20,12 +21,12 @@ function computed(name, profile, today) {
 
 const get = (obj, path) => path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
-export function matches(when, profile, today) {
+export function matches(when, profile, today, bulletins = []) {
   if (!when) return false;
   if (when.always) return true;
-  if (when.all) return when.all.every((w) => matches(w, profile, today));
-  if (when.any) return when.any.some((w) => matches(w, profile, today));
-  if (when.not) return !matches(when.not, profile, today);
+  if (when.all) return when.all.every((w) => matches(w, profile, today, bulletins));
+  if (when.any) return when.any.some((w) => matches(w, profile, today, bulletins));
+  if (when.not) return !matches(when.not, profile, today, bulletins);
   const d = profile.dates || {};
   if (when.situation) return (profile.situations || []).includes(when.situation);
   if (when.stage) return when.stage.includes(profile.stage);
@@ -47,6 +48,7 @@ export function matches(when, profile, today) {
     if ('lte' in when && !(v <= when.lte)) return false;
     return true;
   }
+  if (when.pdCurrent) return status(bulletins, d.priorityDate, d.ebCategory)?.[when.pdCurrent] === 'current';
   if (when.followUpOf) return profile.checks?.[when.followUpOf]?.answer === 'no';
   return false;
 }
@@ -59,12 +61,12 @@ function isDone(check, state, today) {
 
 const byPriority = (a, b) => (a.priority ?? 5) - (b.priority ?? 5);
 
-export function evaluate(profile, checks, today = new Date()) {
+export function evaluate(profile, checks, today = new Date(), bulletins = []) {
   const open = [];
   const done = [];
   for (const c of checks) {
     if (c.visas && !c.visas.includes(profile.visa)) continue;
-    if (!matches(c.when, profile, today)) continue;
+    if (!matches(c.when, profile, today, bulletins)) continue;
     (isDone(c, profile.checks?.[c.id], today) ? done : open).push(c);
   }
   return { open: open.sort(byPriority), done: done.sort(byPriority) };

@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProfile } from '../lib/profile.jsx';
-import { CHECKS, VISAS, stageOf } from '../lib/content.js';
+import { BULLETINS, CHECKS, VISAS, stageOf } from '../lib/content.js';
 import { evaluate, resetForSituation } from '../lib/checks.js';
 import { daysUntil, formatDate } from '../lib/dates.js';
 import CheckCard from '../components/CheckCard.jsx';
+import PDMeter from '../components/PDMeter.jsx';
 
 // Dates that are history, not deadlines.
 const NOT_DEADLINES = new Set(['h1bFirstStart', 'priorityDate', 'i140ApprovedOn', 'primaryI140ApprovedOn', 'i485FiledOn', 'optStart', 'stemOptStart', 'travelSignatureDate']);
@@ -26,7 +27,7 @@ export default function Home() {
   const { profile, update } = useProfile();
   const [showAll, setShowAll] = useState(false);
   const [showDone, setShowDone] = useState(false);
-  const { open, done } = useMemo(() => evaluate(profile, CHECKS), [profile]);
+  const { open, done } = useMemo(() => evaluate(profile, CHECKS, new Date(), BULLETINS), [profile]);
   const situations = VISAS.situations.filter((s) => s.visas.includes(profile.visa));
   const stage = stageOf(profile.visa, profile.stage);
   const deadline = nextDeadline(profile);
@@ -88,6 +89,10 @@ export default function Home() {
         )}
         {showDone && done.map((c) => <CheckCard key={c.id} check={c} state={profile.checks[c.id]} onAnswer={answer} done />)}
       </section>
+
+      {['H1B', 'H4'].includes(profile.visa) && profile.dates.priorityDate && profile.dates.ebCategory && (
+        <PDMeter bulletins={BULLETINS} pd={profile.dates.priorityDate} category={profile.dates.ebCategory} />
+      )}
     </>
   );
 }

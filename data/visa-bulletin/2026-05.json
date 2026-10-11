@@ -1,0 +1,15 @@
+{
+  "month": "2026-05",
+  "finalAction": {
+    "EB1": "2023-04-01",
+    "EB2": "2014-07-15",
+    "EB3": "2013-11-15"
+  },
+  "datesForFiling": {
+    "EB1": "2023-12-01",
+    "EB2": "2015-01-15",
+    "EB3": "2015-01-15"
+  },
+  "uscisChart": "finalAction",
+  "source": "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2026/visa-bulletin-for-may-2026.html"
+}

@@ -79,6 +79,16 @@ button { font: inherit; }
 .deadline { display: grid; gap: 2px; }
 .deadline strong { font-size: 1.05rem; }
 
+.pd dl { margin: 4px 0 10px; display: grid; gap: 6px; }
+.pd-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pd-row dt { color: var(--muted); font-size: 0.92rem; }
+.pd-row dd { margin: 0; font-weight: 600; text-align: right; }
+.pill { display: inline-block; margin-left: 8px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--line); border-radius: 8px; padding: 1px 6px; color: var(--muted); }
+.pill.on { color: var(--primary); border-color: var(--primary); }
+.spark { margin: 8px 0; }
+.spark svg { display: block; width: 100%; height: auto; }
+.spark figcaption { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+
 .actions { display: flex; gap: 8px; }
 button.primary, button.ghost, button.choice, .chip {
   min-height: 44px;
