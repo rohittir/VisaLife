@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useProfile } from '../lib/profile.jsx';
 import { VISAS } from '../lib/content.js';
 import { JOURNEYS, STEPS } from '../lib/journeys.js';
+import { groupBySection, visibleSteps } from '../lib/steps.js';
+import FieldInput from '../components/FieldInput.jsx';
 import Icon from '../components/Icon.jsx';
 import Step from '../components/Step.jsx';
 
@@ -47,6 +49,30 @@ export default function Journey() {
       })}
     </ul>
   );
+
+  // Leaving the USA is not a stage in a line: its own layout, with sections and steps that depend on the destination.
+  if (profile.stage === 'leaving' && journey) {
+    const field = VISAS.fields.leavingTo;
+    const to = profile.dates.leavingTo;
+    const shownSteps = visibleSteps(idsOf('leaving').map((id) => STEPS[id]), to);
+    return (
+      <>
+        <h1>Journey</h1>
+        <section className="card" aria-label="Leaving the USA">
+          <h2>{stages[cur].label}</h2>
+          <p className="muted">{shownSteps.filter((s) => isDone(s.id)).length} of {shownSteps.length} steps done</p>
+          <FieldInput field={field} value={to} onChange={(v) => update((p) => ({ dates: { ...p.dates, leavingTo: v || undefined } }))} />
+          {!field.options.includes(to) && <p className="label">Some steps only apply to one destination. Pick one to see them.</p>}
+        </section>
+        {groupBySection(shownSteps).map((g) => (
+          <section key={g.steps[0].id} className="section">
+            {g.section && <h2>{g.section}</h2>}
+            {stepRows(g.steps.map((s) => s.id))}
+          </section>
+        ))}
+      </>
+    );
+  }
 
   return (
     <>

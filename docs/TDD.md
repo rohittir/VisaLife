@@ -54,7 +54,7 @@ VisaLife/
     src/lib/ics.js        calendar export
     src/styles.css        tokens + components (no UI library)
     content/journeys/{h1b,h4,f1}.json
-    content/steps/*.md    frontmatter: id,title,visas,stages,sources[],lastReviewed,verify
+    content/steps/*.md    frontmatter: id,title,visas,stages,sources[],lastReviewed,verify; optional section, leavingTo
     content/checks/*.json one array per group (common, h1b, gc, h4, f1); schema in B6
     content/glossary.md
   api/                    Node 22 ESM
@@ -115,6 +115,22 @@ VisaLife/
   `<fieldset>` of two radio rows ("Still ahead", "Already passed") for `deadline` fields, with the
   pickers under the chosen row; it narrows years and months with the pure `timingOf`,
   `yearChoices` and `monthChoices` in `dates.js`; `monthsLabel` renders month-only countdowns.
+- **Leaving the USA:** `leaving` is the last stage of each visa (`quick: [leavingTo, leaveOn]`);
+  `leavingTo` is a select (India, Another country) and `leaveOn` a `timing: "ahead"` month, both in
+  the field group `Plans` (`GROUPS` in `lib/visas.js`). `Journey.jsx` renders that stage in its own
+  layout: `visibleSteps(steps, leavingTo)` in `lib/steps.js` keeps steps with no `leavingTo` and
+  those whose `leavingTo` equals `profile.dates.leavingTo` (an unset or unknown value shows only
+  the first kind), `groupBySection` merges consecutive steps that share a `section` under one
+  heading, and the "X of Y steps done" count is taken over the visible steps. The destination is
+  asked inline with `FieldInput` and written to `profile.dates.leavingTo`. The shared steps are
+  `content/steps/leaving-*.md` with `visas: [H1B, H4, F1]` and `stages: [leaving]`, listed in the
+  same order under `leaving` in all three journey files. Check ids use `leave-` so they never
+  equal step ids, which share `profile.checks`. The extension and green-card checks carry
+  `{ "not": { "stage": ["leaving"] } }`; `leave-*` checks gate on stage `leaving`, and the India
+  ones on `{ "field": "dates.leavingTo", "eq": "India" }`. `validateLeavingKeys` (`lib/steps.js`)
+  checks `section` is a non-empty string and `leavingTo` is one of the field's options. On Today the
+  priority-date tile is hidden in the leaving stage, and a `Plans` deadline (`leaveOn`) feeds the
+  Next deadline tile only in the stage that lists it, so it cannot linger where Me cannot edit it.
 - **Content pipeline:** `import.meta.glob('../content/steps/*.md', {query:'?raw', eager:true})`
   parsed with a 15-line frontmatter splitter + `marked` for the body; checks and journeys are
   plain JSON imports. A Vite plugin step (`scripts/validate-content.mjs`, run in `prebuild`)

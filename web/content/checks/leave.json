@@ -1,0 +1,149 @@
+[
+  {
+    "id": "leave-last-day", "visas": ["H1B", "H4", "F1"], "priority": 1,
+    "when": { "stage": ["leaving"] },
+    "title": "Your last day",
+    "short": "Know your last day and grace period?",
+    "ask": "Do you know your last day of work or your program or OPT end date, and the date your grace period ends? H-1B gets up to 60 days, F-1 gets 60 days after the program or OPT ends, and H-4 follows the H-1B holder.",
+    "why": "The grace period is a limit, not extra time to work. It ends the day you leave the US, so write down your last paid day and ask your employer to confirm it.",
+    "links": [
+      { "label": "8 CFR 214.1(l)(2) (eCFR)", "url": "https://www.ecfr.gov/current/title-8/section-214.1#p-214.1(l)(2)" },
+      { "label": "F-1 grace period, 8 CFR 214.2(f)(5)(iv) (eCFR)", "url": "https://www.ecfr.gov/on/2026-08-10/title-8/section-214.2#p-214.2(f)(5)(iv)" }
+    ],
+    "verify": true,
+    "sources": ["https://www.ecfr.gov/current/title-8/section-214.1#p-214.1(l)(2)", "https://www.federalregister.gov/documents/2026/09/11/2026-18631/eliminating-the-discretionary-60-day-grace-period"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-pending-case", "visas": ["H1B", "H4", "F1"], "priority": 1,
+    "when": { "all": [{ "stage": ["leaving"] }, { "any": [{ "dateSet": "i485FiledOn" }, { "field": "flags.pendingI539", "eq": true }] }] },
+    "title": "Leaving with a case pending",
+    "short": "Leaving with a case still pending?",
+    "ask": "You have an I-485 or I-539 on file. Have you asked your attorney what leaving the US will do to it, and whether you need advance parole or a different plan?",
+    "why": "Leaving can end a pending I-485 or I-539. Leaving without advance parole generally abandons an I-485, and an I-539 to change status is generally treated as abandoned if you leave before a decision.",
+    "links": [
+      { "label": "Travel documents and pending cases (USCIS)", "url": "https://www.uscis.gov/green-card/green-card-processes-and-procedures/travel-documents" },
+      { "label": "8 CFR 245.2(a)(4)(ii) (eCFR)", "url": "https://www.ecfr.gov/current/title-8/section-245.2#p-245.2(a)(4)(ii)" }
+    ],
+    "verify": true,
+    "sources": ["https://www.uscis.gov/green-card/green-card-processes-and-procedures/travel-documents", "https://www.ecfr.gov/current/title-8/section-245.2#p-245.2(a)(4)(ii)"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-departing-certificate", "visas": ["H1B", "H4", "F1"], "priority": 2,
+    "when": { "stage": ["leaving"] },
+    "title": "Before you leave",
+    "short": "Need an IRS certificate to leave?",
+    "ask": "H-1B holders need a certificate of compliance from the IRS before they leave (Form 2063 or Form 1040-C). F-1 and H-4 holders are exempt if their only US income is study allowances, authorized work and bank interest. Have you checked which applies to you?",
+    "why": "You apply 2 weeks to 30 days before you leave, at an IRS office, by appointment. Appointments can be limited.",
+    "links": [
+      { "label": "Departing alien clearance (IRS)", "url": "https://www.irs.gov/individuals/international-taxpayers/departing-alien-clearance-sailing-permit" },
+      { "label": "Topic 858: alien tax clearance (IRS)", "url": "https://www.irs.gov/taxtopics/tc858" }
+    ],
+    "sources": ["https://www.irs.gov/individuals/international-taxpayers/departing-alien-clearance-sailing-permit"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-us-tax-return", "visas": ["H1B", "H4", "F1"], "priority": 2,
+    "when": { "stage": ["leaving"] },
+    "title": "Taxes",
+    "short": "Planned your final US tax return?",
+    "ask": "Do you know which US return you will file for the year you leave? It is usually a dual-status Form 1040-NR, with Form 8843 if you are on F-1.",
+    "why": "The year you leave is split into a resident part and a non-resident part. A dual-status return has no standard deduction and no joint filing.",
+    "links": [
+      { "label": "Dual-status aliens (IRS)", "url": "https://www.irs.gov/individuals/international-taxpayers/taxation-of-dual-status-aliens" },
+      { "label": "Form 8843 (IRS)", "url": "https://www.irs.gov/forms-pubs/about-form-8843" }
+    ],
+    "verify": true,
+    "sources": ["https://www.irs.gov/individuals/international-taxpayers/taxation-of-dual-status-aliens", "https://www.irs.gov/publications/p519"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-401k", "visas": ["H1B", "H4", "F1"], "priority": 2,
+    "when": { "stage": ["leaving"] },
+    "title": "Your retirement account",
+    "short": "Know what to do with your 401(k)?",
+    "ask": "If you have a 401(k), have you decided whether to leave it in the plan, roll it over or cash it out, and told the plan your new address?",
+    "why": "A cash-out to a foreign person is generally withheld at 30%, and a direct rollover has no withholding. The India treaty's 0% rate covers periodic payments, not a lump sum.",
+    "links": [
+      { "label": "Payments to foreign persons (IRS)", "url": "https://www.irs.gov/retirement-plans/plan-distributions-to-foreign-persons-require-withholding" },
+      { "label": "Rollovers of retirement plan distributions (IRS)", "url": "https://www.irs.gov/retirement-plans/plan-participant-employee/rollovers-of-retirement-plan-and-ira-distributions" }
+    ],
+    "sources": ["https://www.irs.gov/retirement-plans/plan-distributions-to-foreign-persons-require-withholding", "https://www.irs.gov/pub/irs-lbi/tax-treaty-table-1.pdf"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-final-pay-pto", "visas": ["H1B", "H4", "F1"], "priority": 3,
+    "when": { "stage": ["leaving"] },
+    "title": "Your last paycheck",
+    "short": "Know when your final pay arrives?",
+    "ask": "Do you know when your final paycheck arrives, whether unused PTO is paid out, and the date your health cover ends?",
+    "why": "Federal law sets no deadline for final pay and does not require pay for unused vacation. Your state and your employer decide.",
+    "links": [
+      { "label": "Last paycheck (US Department of Labor)", "url": "https://www.dol.gov/general/topic/wages/lastpaycheck" },
+      { "label": "State labor offices (US Department of Labor)", "url": "https://www.dol.gov/agencies/whd/state/contacts" }
+    ],
+    "sources": ["https://www.dol.gov/general/topic/wages/lastpaycheck", "https://www.dol.gov/general/topic/workhours/vacation_leave"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-stock-awards", "visas": ["H1B", "H4", "F1"], "priority": 3,
+    "when": { "stage": ["leaving"] },
+    "title": "Your stock awards",
+    "short": "Know what happens to your stock awards?",
+    "ask": "Do you know what happens to your RSUs, ESPP shares and stock options when you leave, and the deadline for each? ISOs must be exercised within 3 months after your job ends to keep their tax treatment.",
+    "why": "Your award agreements set what happens to unvested awards and how long you have to exercise vested options. Tax rules then depend on when and where you worked.",
+    "links": [
+      { "label": "Topic 427: stock options (IRS)", "url": "https://www.irs.gov/taxtopics/tc427" },
+      { "label": "Publication 525 (IRS)", "url": "https://www.irs.gov/publications/p525" }
+    ],
+    "verify": true,
+    "sources": ["https://www.irs.gov/publications/p525", "https://www.ecfr.gov/current/title-26/section-1.421-1"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-bank-broker", "visas": ["H1B", "H4", "F1"], "priority": 3,
+    "when": { "stage": ["leaving"] },
+    "title": "Banks and brokers",
+    "short": "Told your bank and broker you are moving?",
+    "ask": "Have you told your banks, card issuers and broker that you are moving, and asked what each needs from you? Your broker will ask for Form W-8BEN once you are a non-resident alien.",
+    "why": "Each bank and broker has its own policy for customers who move abroad. A valid W-8BEN lets a broker withhold the treaty rate instead of 30%.",
+    "links": [
+      { "label": "Form W-8BEN instructions (IRS)", "url": "https://www.irs.gov/instructions/iw8ben" },
+      { "label": "Can a bank close my account? (CFPB)", "url": "https://www.consumerfinance.gov/ask-cfpb/the-bankcredit-union-closed-my-checking-account-even-though-i-did-not-want-them-to-can-the-bankcredit-union-do-that-en-959/" }
+    ],
+    "sources": ["https://www.irs.gov/instructions/iw8ben", "https://www.fdic.gov/resources/deposit-insurance/brochures/insured-deposits"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-home-and-lease", "visas": ["H1B", "H4", "F1"], "priority": 3,
+    "when": { "stage": ["leaving"] },
+    "title": "Your home",
+    "short": "Sorted your home or lease?",
+    "ask": "Have you given notice on your lease, or planned the sale of your home? Check the notice period in your lease and how the sale is taxed and withheld.",
+    "why": "A lease has a notice period, and a home sale has US tax and withholding rules for a foreign seller.",
+    "links": [
+      { "label": "FIRPTA withholding (IRS)", "url": "https://www.irs.gov/individuals/international-taxpayers/firpta-withholding" },
+      { "label": "Publication 523: selling your home (IRS)", "url": "https://www.irs.gov/publications/p523" }
+    ],
+    "sources": ["https://www.irs.gov/individuals/international-taxpayers/firpta-withholding", "https://www.irs.gov/publications/p523"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-india-rnor", "visas": ["H1B", "H4", "F1"], "priority": 2,
+    "when": { "all": [{ "stage": ["leaving"] }, { "field": "dates.leavingTo", "eq": "India" }] },
+    "title": "Moving to India",
+    "short": "Know your RNOR years?",
+    "ask": "Have you worked out your residential status in India for the tax year you arrive and the ones after it, and chosen your arrival date with that in mind? RNOR typically covers the year you return and one or two more.",
+    "why": "In RNOR years India generally taxes only Indian income and some foreign income from India-based business. Your arrival date can change how many RNOR years you get.",
+    "links": [
+      { "label": "Residential status under the Income-tax Act (incometax.gov.in)", "url": "https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/non-resident" }
+    ],
+    "verify": true,
+    "sources": ["https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/non-resident"], "lastReviewed": "2026-10-11"
+  },
+  {
+    "id": "leave-india-accounts", "visas": ["H1B", "H4", "F1"], "priority": 3,
+    "when": { "all": [{ "stage": ["leaving"] }, { "field": "dates.leavingTo", "eq": "India" }] },
+    "title": "Moving to India",
+    "short": "Know what to do with NRE and NRO?",
+    "ask": "Do you know what you will do with your NRE, NRO and FCNR(B) accounts when you return? RBI's rule is to redesignate an NRE account, or move it to an RFC account, immediately on return.",
+    "why": "RBI's wording is \"immediately\". An RFC account is one place a foreign currency balance can go when you become resident.",
+    "links": [
+      { "label": "RBI Master Direction on Deposits and Accounts", "url": "https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=10198" },
+      { "label": "RBI FAQ: change in residential status", "url": "https://www.rbi.org.in/commonman/english/scripts/FAQs.aspx?Id=3" }
+    ],
+    "sources": ["https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=10198", "https://www.rbi.org.in/commonman/english/scripts/FAQs.aspx?Id=3"], "lastReviewed": "2026-10-11"
+  }
+]

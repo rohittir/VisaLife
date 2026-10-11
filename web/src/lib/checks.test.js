@@ -141,3 +141,55 @@ test('an I-797 marked "Already passed" fires the 240-day check; a passed I-94 st
   const f1 = { visa: 'F1', stage: 'enrolled', flags: {}, situations: [], checks: {} };
   assert.ok(ids(evaluate(resolved({ programEnd: 'passed' }, f1), checks, today)).includes('f1-opt-window-late'));
 });
+
+// Leaving the USA: the extension and green-card nudges go quiet, leave-* checks take over, and switching back restores them.
+const nudges = {
+  'h1b-extension-window': { visa: 'H1B', stage: 'working', dates: { i797Expiry: '2027-03' } },
+  'h1b-240-day': { visa: 'H1B', stage: 'working', dates: { i797Expiry: '2026-09' } },
+  'h1b-six-year-clock': { visa: 'H1B', stage: 'working', dates: { h1bFirstStart: '2021-01' } },
+  'h1b-spouse-h4-ead': { visa: 'H1B', stage: 'working', flags: { spouseOnH4: true }, dates: { i140ApprovedOn: '2025-01' } },
+  'h1b-kid-aging-out': { visa: 'H1B', stage: 'working', flags: { kidBirthYear: 2006 }, dates: {} },
+  'h4-extension-with-primary': { visa: 'H4', stage: 'no_ead', dates: { i94Expiry: '2027-03' } },
+  'gc-ead-renewal': { visa: 'H4', stage: 'ead_working', dates: { eadExpiry: '2027-03' } },
+  'gc-i140-check': { visa: 'H1B', stage: 'working', dates: { i140ApprovedOn: '2025-01' } },
+};
+const profileOf = (p, stage = p.stage) => ({ flags: {}, situations: [], checks: {}, ...p, stage, dates: resolveDates(p.dates, fields, today) });
+
+test('a leaving user is not nudged about extensions, the six-year clock, kids, H-4 EADs or green-card dates', () => {
+  for (const [id, p] of Object.entries(nudges)) {
+    assert.ok(ids(evaluate(profileOf(p), checks, today)).includes(id), `${id} fires before`);
+    assert.ok(!ids(evaluate(profileOf(p, 'leaving'), checks, today)).includes(id), `${id} is quiet while leaving`);
+  }
+});
+
+test('switching back to the earlier stage restores the nudges, and answers are kept', () => {
+  const p = profileOf(nudges['h1b-extension-window'], 'leaving');
+  p.checks = { 'h1b-extension-window': { answer: 'no', at: '2026-10-01' } };
+  assert.ok(!ids(evaluate(p, checks, today)).includes('h1b-extension-window'));
+  const back = evaluate({ ...p, stage: 'working' }, checks, today);
+  assert.ok(ids(back).includes('h1b-extension-window'));
+  assert.equal(p.checks['h1b-extension-window'].answer, 'no');
+});
+
+test('leave-* checks need the leaving stage; the India ones also need India as the destination', () => {
+  const leave = (p) => ids(evaluate(profileOf({ visa: 'H1B', stage: 'leaving', ...p }), checks, today)).filter((id) => id.startsWith('leave-'));
+  const common = ['leave-last-day', 'leave-departing-certificate', 'leave-us-tax-return', 'leave-401k', 'leave-final-pay-pto', 'leave-stock-awards', 'leave-bank-broker', 'leave-home-and-lease'];
+  assert.deepEqual(leave({ dates: {} }).sort(), common.sort());
+  assert.deepEqual(leave({ dates: { leavingTo: 'Another country' } }).sort(), common.sort());
+  assert.deepEqual(leave({ dates: { leavingTo: 'India' } }).sort(), [...common, 'leave-india-rnor', 'leave-india-accounts'].sort());
+  for (const visa of ['H1B', 'H4', 'F1']) {
+    assert.ok(leave({ visa, dates: { leavingTo: 'India' } }).includes('leave-india-accounts'), visa);
+  }
+  // none of them outside the stage, even with India chosen
+  for (const stage of ['working', 'no_ead', 'opt', 'approved']) {
+    assert.deepEqual(leave({ stage, dates: { leavingTo: 'India' } }), [], stage);
+  }
+});
+
+test('leave-pending-case needs an I-485 date or a pending I-539 on top of the leaving stage', () => {
+  const has = (p) => ids(evaluate(profileOf({ visa: 'H1B', stage: 'leaving', ...p }), checks, today)).includes('leave-pending-case');
+  assert.ok(!has({ dates: {} }));
+  assert.ok(has({ dates: { i485FiledOn: '2025-06' } }));
+  assert.ok(has({ visa: 'H4', dates: {}, flags: { pendingI539: true } }));
+  assert.ok(!has({ stage: 'i485_pending', dates: { i485FiledOn: '2025-06' } }));
+});

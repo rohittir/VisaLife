@@ -51,3 +51,11 @@ test('skipWhen sees resolved dates: a "passed" date is in the past', () => {
   assert.equal(nextPrompt(st, { dates: { e: '2027-01' }, dismissed: [] }, fields, today), 'a');
   assert.equal(nextPrompt(st, { dates: {}, dismissed: [] }, fields, today), 'a');
 });
+
+test('a leaving user is asked the destination, then the month; a skipped one is not asked again', () => {
+  assert.equal(ask('leaving'), 'leavingTo');
+  assert.equal(ask('leaving', { leavingTo: 'India' }), 'leaveOn');
+  assert.equal(ask('leaving', {}, ['leavingTo']), 'leaveOn');
+  assert.equal(ask('leaving', { leavingTo: 'India' }, ['leaveOn']), 'passportExpiry');
+  assert.equal(ask('leaving', { leavingTo: 'India', leaveOn: '2027-03', passportExpiry: '2030-01' }), undefined);
+});

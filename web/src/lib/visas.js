@@ -1,5 +1,5 @@
 // Shape rules for content/visas.json. Shared by the tests and scripts/validate-content.mjs. Returns a list of errors.
-export const GROUPS = ['Documents', 'Green card', 'Work permit'];
+export const GROUPS = ['Documents', 'Green card', 'Work permit', 'Plans'];
 
 export function validateVisas({ visas, fields }) {
   const errors = [];

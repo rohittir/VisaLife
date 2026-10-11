@@ -8,7 +8,8 @@
         { "id": "gc_perm_i140", "label": "Green card started", "hint": "Employer has started PERM or filed the I-140", "quick": ["i94Expiry"], "fields": ["i94Expiry", "i797Expiry", "ebCategory", "priorityDate", "i140ApprovedOn", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
         { "id": "gc_waiting_pd", "label": "Waiting for my priority date", "hint": "I-140 approved, date not current yet", "quick": ["ebCategory", "priorityDate"], "fields": ["ebCategory", "priorityDate", "i94Expiry", "i797Expiry", "i140ApprovedOn", "passportExpiry", "visaStampExpiry", "h1bFirstStart", "timeOutsideUsDays"] },
         { "id": "i485_pending", "label": "I-485 filed, waiting", "hint": "Adjustment of status is pending", "quick": ["eadExpiry"], "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "ebCategory", "priorityDate", "i94Expiry", "i797Expiry", "passportExpiry", "visaStampExpiry"] },
-        { "id": "approved", "label": "Green card approved", "hint": "Congratulations", "quick": [], "fields": ["passportExpiry"] }
+        { "id": "approved", "label": "Green card approved", "hint": "Congratulations", "quick": [], "fields": ["passportExpiry"] },
+        { "id": "leaving", "label": "Planning to leave the USA", "hint": "Soon, or within the next year", "quick": ["leavingTo", "leaveOn"], "fields": ["leavingTo", "leaveOn", "passportExpiry", "visaStampExpiry"] }
       ]
     },
     "H4": {
@@ -17,7 +18,8 @@
         { "id": "no_ead", "label": "On H-4, no work permit", "hint": "Dependent of an H-1B holder", "quick": ["i94Expiry"], "fields": ["i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
         { "id": "ead_eligible", "label": "Eligible for H-4 EAD", "hint": "Spouse's I-140 is approved", "quick": ["i94Expiry"], "fields": ["i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
         { "id": "ead_working", "label": "Working on H-4 EAD", "hint": "EAD in hand", "quick": ["eadExpiry"], "fields": ["eadExpiry", "i94Expiry", "primaryI140ApprovedOn", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
-        { "id": "i485_derivative", "label": "I-485 filed with my spouse", "hint": "Adjustment of status is pending", "quick": ["i94Expiry"], "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "i94Expiry", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] }
+        { "id": "i485_derivative", "label": "I-485 filed with my spouse", "hint": "Adjustment of status is pending", "quick": ["i94Expiry"], "fields": ["i485FiledOn", "eadExpiry", "apExpiry", "i94Expiry", "passportExpiry", "visaStampExpiry", "ebCategory", "priorityDate"] },
+        { "id": "leaving", "label": "Planning to leave the USA", "hint": "Soon, or within the next year", "quick": ["leavingTo", "leaveOn"], "fields": ["leavingTo", "leaveOn", "passportExpiry", "visaStampExpiry"] }
       ]
     },
     "F1": {
@@ -28,7 +30,8 @@
         { "id": "opt", "label": "On OPT", "hint": "Post-completion OPT EAD in hand", "quick": ["optEnd"], "fields": ["optEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate", "unemploymentDaysUsed"] },
         { "id": "stem_opt", "label": "On STEM OPT", "hint": "24-month extension", "quick": ["stemOptEnd"], "fields": ["stemOptEnd", "passportExpiry", "visaStampExpiry", "travelSignatureDate", "unemploymentDaysUsed"] },
         { "id": "h1b_selected", "label": "Selected in the H-1B lottery", "hint": "Petition filed or being filed", "quick": [], "fields": ["optEnd", "stemOptEnd", "passportExpiry", "visaStampExpiry"] },
-        { "id": "ending", "label": "OPT ending, not selected", "hint": "Grace period and options", "quick": [], "fields": ["optEnd", "stemOptEnd", "passportExpiry"] }
+        { "id": "ending", "label": "OPT ending, not selected", "hint": "Grace period and options", "quick": [], "fields": ["optEnd", "stemOptEnd", "passportExpiry"] },
+        { "id": "leaving", "label": "Planning to leave the USA", "hint": "Soon, or within the next year", "quick": ["leavingTo", "leaveOn"], "fields": ["leavingTo", "leaveOn", "passportExpiry", "visaStampExpiry"] }
       ]
     }
   },
@@ -50,7 +53,9 @@
     "stemOptEnd": { "label": "STEM OPT end", "question": "When does your STEM OPT end?", "type": "date", "precision": "month", "assume": "end", "group": "Work permit", "deadline": true, "unlock": "Add your STEM OPT end date to see your grace-period dates" },
     "travelSignatureDate": { "label": "Last I-20 travel signature", "type": "date", "precision": "month", "assume": "start", "group": "Documents" },
     "timeOutsideUsDays": { "label": "Full days outside the US since then", "type": "number" },
-    "unemploymentDaysUsed": { "label": "Unemployment days used so far", "type": "number" }
+    "unemploymentDaysUsed": { "label": "Unemployment days used so far", "type": "number" },
+    "leavingTo": { "label": "Moving to", "question": "Where are you moving to?", "type": "select", "options": ["India", "Another country"], "group": "Plans", "unlock": "Tell us where you are moving to, so we show the steps that apply" },
+    "leaveOn": { "label": "Planned departure", "question": "When do you plan to leave?", "type": "date", "precision": "month", "assume": "start", "group": "Plans", "deadline": true, "timing": "ahead", "unlock": "Add the month you plan to leave to count down to it" }
   },
   "flags": [
     { "id": "spouseOnH4", "label": "My spouse is on H-4", "type": "boolean", "visas": ["H1B"] },

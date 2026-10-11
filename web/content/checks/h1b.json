@@ -21,7 +21,7 @@
   },
   {
     "id": "h1b-extension-window", "visas": ["H1B"], "priority": 1,
-    "when": { "all": [{ "dateWithin": { "field": "i797Expiry", "days": 180 } }, { "not": { "stage": ["approved"] } }] },
+    "when": { "all": [{ "dateWithin": { "field": "i797Expiry", "days": 180 } }, { "not": { "stage": ["approved"] } }, { "not": { "stage": ["leaving"] } }] },
     "title": "Extension window is open",
     "short": "Has your employer started your extension?",
     "ask": "Has your employer started your H-1B extension? It can be filed up to 6 months before your I-797 expires.",
@@ -34,7 +34,7 @@
   },
   {
     "id": "h1b-240-day", "visas": ["H1B"], "priority": 1,
-    "when": { "all": [{ "datePast": "i797Expiry" }, { "not": { "stage": ["approved"] } }] },
+    "when": { "all": [{ "datePast": "i797Expiry" }, { "not": { "stage": ["approved"] } }, { "not": { "stage": ["leaving"] } }] },
     "title": "Your I-797 date has passed",
     "short": "Was your extension filed in time?",
     "ask": "Was your extension filed before the old I-797 expired, so the 240-day rule covers you? If the extension is approved, update the I-797 date in Me.",
@@ -44,7 +44,7 @@
   },
   {
     "id": "h1b-six-year-clock", "visas": ["H1B"], "priority": 2,
-    "when": { "computed": "daysToSixYearMax", "lte": 365 },
+    "when": { "all": [{ "computed": "daysToSixYearMax", "lte": 365 }, { "not": { "stage": ["leaving"] } }] },
     "title": "Six-year limit within a year",
     "short": "Can you extend past six years?",
     "ask": "Do you qualify to extend beyond six years: an approved I-140 with a priority date that is not current (3-year extensions), or a PERM or I-140 pending 365+ days (1-year extensions)? Have you counted days outside the US to recapture?",
@@ -115,7 +115,7 @@
   },
   {
     "id": "h1b-spouse-h4-ead", "visas": ["H1B"], "priority": 2,
-    "when": { "all": [{ "field": "flags.spouseOnH4", "eq": true }, { "dateSet": "i140ApprovedOn" }] },
+    "when": { "all": [{ "field": "flags.spouseOnH4", "eq": true }, { "dateSet": "i140ApprovedOn" }, { "not": { "stage": ["leaving"] } }] },
     "title": "Your spouse",
     "short": "Has your spouse applied for an H-4 EAD?",
     "ask": "Your I-140 is approved, so your spouse can apply for an H-4 EAD (Form I-765, category (c)(26)). Have they?",
@@ -125,7 +125,7 @@
   },
   {
     "id": "h1b-kid-aging-out", "visas": ["H1B", "H4"], "priority": 2,
-    "when": { "computed": "kidAge", "gte": 20 },
+    "when": { "all": [{ "computed": "kidAge", "gte": 20 }, { "not": { "stage": ["leaving"] } }] },
     "title": "Child turning 21",
     "short": "Have you planned for your child turning 21?",
     "ask": "Have you planned for your child turning 21: a change to F-1 before the birthday, and a CSPA age calculation if an I-485 is or will be filed?",

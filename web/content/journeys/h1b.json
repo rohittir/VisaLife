@@ -6,7 +6,8 @@
     { "id": "gc_perm_i140", "steps": ["h1b-gc-perm-i140", "h1b-gc-eb2-eb3", "h1b-gc-pd-retention", "h1b-gc-beyond-six"] },
     { "id": "gc_waiting_pd", "steps": ["h1b-pd-bulletin", "h1b-pd-charts", "h1b-pd-why-india", "h1b-pd-eb3-downgrade", "h1b-pd-eb1-niw", "h1b-pd-i485-prep"] },
     { "id": "i485_pending", "steps": ["h1b-485-after-filing", "h1b-485-ead-ap", "h1b-485-portability", "h1b-485-travel", "h1b-485-keep-h1b"] },
-    { "id": "approved", "steps": ["h1b-lpr-card", "h1b-lpr-naturalization", "h1b-lpr-reentry"] }
+    { "id": "approved", "steps": ["h1b-lpr-card", "h1b-lpr-naturalization", "h1b-lpr-reentry"] },
+    { "id": "leaving", "steps": ["leaving-last-day", "leaving-pending-case", "leaving-keep-records", "leaving-family", "leaving-final-pay", "leaving-401k", "leaving-ira-roth", "leaving-hsa-fsa", "leaving-stock-awards", "leaving-bank-credit", "leaving-health-gap", "leaving-tax-year", "leaving-departing-alien", "leaving-state-tax", "leaving-social-security", "leaving-home-sale", "leaving-remittance-tax", "leaving-brokerage", "leaving-cash-or-hold", "leaving-investment-tax", "leaving-save-tax", "leaving-india-rnor", "leaving-india-timing", "leaving-india-accounts", "leaving-india-fema-assets", "leaving-india-money-in", "leaving-india-disclosure", "leaving-india-tax-credit", "leaving-india-retirement", "leaving-india-disclosure-window", "leaving-india-oci", "leaving-india-pan-aadhaar"] }
   ],
   "groups": [
     { "label": "Changing employer", "steps": ["h1b-job-portability"] },

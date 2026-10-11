@@ -11,7 +11,7 @@
   },
   {
     "id": "gc-i140-check", "visas": ["H1B"], "priority": 3,
-    "when": { "dateSet": "i140ApprovedOn" },
+    "when": { "all": [{ "dateSet": "i140ApprovedOn" }, { "not": { "stage": ["leaving"] } }] },
     "title": "I-140 approved",
     "short": "Is your I-140 approval notice correct?",
     "ask": "Does the I-140 approval notice show the priority date and category (EB-2 or EB-3) you expected, and do you have your own copy?",
@@ -91,7 +91,7 @@
   },
   {
     "id": "gc-ead-renewal", "visas": ["H1B", "H4"], "priority": 1,
-    "when": { "dateWithin": { "field": "eadExpiry", "days": 180 } },
+    "when": { "all": [{ "dateWithin": { "field": "eadExpiry", "days": 180 } }, { "not": { "stage": ["leaving"] } }] },
     "title": "EAD expires within 6 months",
     "short": "Have you filed your EAD renewal?",
     "ask": "Have you filed the EAD (and advance parole) renewal?",

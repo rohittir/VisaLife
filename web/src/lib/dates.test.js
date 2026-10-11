@@ -64,10 +64,10 @@ test('every month field declares assume and the choice is the conservative side'
   const month = Object.entries(fields).filter(([, f]) => f.precision === 'month');
   assert.deepEqual(
     month.map(([k]) => k).sort(),
-    ['apExpiry', 'eadExpiry', 'h1bFirstStart', 'i140ApprovedOn', 'i485FiledOn', 'i797Expiry', 'i94Expiry', 'optEnd', 'passportExpiry', 'priorityDate', 'primaryI140ApprovedOn', 'programEnd', 'stemOptEnd', 'travelSignatureDate', 'visaStampExpiry'].sort(),
+    ['apExpiry', 'eadExpiry', 'h1bFirstStart', 'i140ApprovedOn', 'i485FiledOn', 'i797Expiry', 'i94Expiry', 'leaveOn', 'optEnd', 'passportExpiry', 'priorityDate', 'primaryI140ApprovedOn', 'programEnd', 'stemOptEnd', 'travelSignatureDate', 'visaStampExpiry'].sort(),
   );
   const start = month.filter(([, f]) => f.assume === 'start').map(([k]) => k).sort();
-  assert.deepEqual(start, ['h1bFirstStart', 'passportExpiry', 'travelSignatureDate', 'visaStampExpiry']);
+  assert.deepEqual(start, ['h1bFirstStart', 'leaveOn', 'passportExpiry', 'travelSignatureDate', 'visaStampExpiry']);
 });
 
 test('OPT and STEM start are derived from the end date, never read from the profile', () => {
