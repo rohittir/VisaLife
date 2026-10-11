@@ -1,10 +1,15 @@
 {
   "name": "visalife",
   "private": true,
-  "workspaces": ["web", "scripts"],
+  "workspaces": [
+    "web",
+    "scripts",
+    "infra"
+  ],
   "scripts": {
     "dev": "npm -w web run dev",
     "build": "npm -w web run build",
-    "test": "npm test -ws --if-present"
+    "test": "npm test -ws --if-present",
+    "deploy": "npm run build && npm -w infra run deploy"
   }
 }
