@@ -23,10 +23,10 @@ export function parseFrontmatter(raw) {
   return { data, body: raw.slice(m[0].length) };
 }
 
-// Short link text for a source URL: "8 CFR 214.2(f)(6)" for eCFR paragraph links, else host/last-path-segment.
+// Short link text for a source URL: "8 CFR 214.2(f)(6)" for eCFR paragraph links (title from the path), else host/last-path-segment.
 export function sourceLabel(url) {
   const { hostname, pathname, hash } = new URL(url);
-  if (hash.startsWith('#p-')) return `8 CFR ${decodeURIComponent(hash.slice(3))}`;
+  if (hash.startsWith('#p-')) return `${/title-(\d+)/.exec(pathname)?.[1] ?? 8} CFR ${decodeURIComponent(hash.slice(3))}`;
   const last = decodeURIComponent(pathname.split('/').filter(Boolean).pop() ?? '');
   return [hostname.replace(/^www\./, ''), last].filter(Boolean).join('/');
 }

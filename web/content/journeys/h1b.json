@@ -1,0 +1,17 @@
+{
+  "visa": "H1B",
+  "stages": [
+    { "id": "new", "steps": ["h1b-new-i797-i94", "h1b-new-ssn", "h1b-new-lca-wages", "h1b-new-maintain-status"] },
+    { "id": "working", "steps": ["h1b-work-extension", "h1b-work-six-year", "h1b-work-amendment"] },
+    { "id": "gc_perm_i140", "steps": ["h1b-gc-perm-i140", "h1b-gc-eb2-eb3", "h1b-gc-pd-retention", "h1b-gc-beyond-six"] },
+    { "id": "gc_waiting_pd", "steps": ["h1b-pd-bulletin", "h1b-pd-charts", "h1b-pd-why-india", "h1b-pd-eb3-downgrade", "h1b-pd-eb1-niw", "h1b-pd-i485-prep"] },
+    { "id": "i485_pending", "steps": ["h1b-485-after-filing", "h1b-485-ead-ap", "h1b-485-portability", "h1b-485-travel", "h1b-485-keep-h1b"] },
+    { "id": "approved", "steps": ["h1b-lpr-card", "h1b-lpr-naturalization", "h1b-lpr-reentry"] }
+  ],
+  "groups": [
+    { "label": "Changing employer", "steps": ["h1b-job-portability"] },
+    { "label": "Laid off or benched", "steps": ["h1b-job-grace-60", "h1b-job-benched"] },
+    { "label": "Travel and visa stamping", "steps": ["h1b-trip-prep", "h1b-trip-stamping", "h1b-trip-100k"] },
+    { "label": "Spouse and children", "steps": ["h1b-fam-h4", "h1b-fam-h4-ead", "h1b-fam-kid-21"] }
+  ]
+}

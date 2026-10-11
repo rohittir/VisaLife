@@ -40,6 +40,7 @@ test('frontmatter: no block means no data; a malformed line throws', () => {
 
 test('source labels: eCFR paragraph links read as citations, others as host/page', () => {
   assert.equal(sourceLabel('https://www.ecfr.gov/on/2026-08-10/title-8/section-214.2#p-214.2(f)(5)(vi)'), '8 CFR 214.2(f)(5)(vi)');
+  assert.equal(sourceLabel('https://www.ecfr.gov/current/title-20/section-655.731#p-655.731(c)(7)'), '20 CFR 655.731(c)(7)');
   assert.equal(sourceLabel('https://www.uscis.gov/i-539'), 'uscis.gov/i-539');
   assert.equal(sourceLabel('https://i94.cbp.dhs.gov'), 'i94.cbp.dhs.gov');
   assert.equal(sourceLabel('https://www.ice.gov/doclib/sevis/pdf/Nonimmigrant%20Class%20Who%20Can%20Study.pdf'), 'ice.gov/Nonimmigrant Class Who Can Study.pdf');
