@@ -80,6 +80,8 @@ Test: one `aws-cdk-lib/assertions` test for public-access block, OAC, the 403 an
 
 ## 9. Backend hook (Stage 4, from TDD B5)
 
+Already in the stack: a REST API (`api/feedback`, stage `prod`) with one Lambda, and a private feedback bucket (retained, write-only for the Lambda). CloudFront serves the API on the site's own origin through the `api/*` behavior, so the CSP and `connect-src` stay as they are for it. The list below is the rest of Stage 4.
+
 Cognito, REST API with `lambda-api`, DynamoDB with `dynamodb-onetable` and the daily ingest Lambda join the same stack.
 Required changes at that point: `config.json` via `Source.jsonData`, `connect-src` and `form-action` in the CSP for the API and Cognito domains, and API CORS for the CloudFront origin.
 Open point: with `prune: false` old hashed assets pile up slowly (about 330 KB per deploy). Switching to `prune: true` with `exclude: ['live/*']` and writing `policy.json` under `live/` fixes that. Decide then.

@@ -8,8 +8,10 @@ const acm = require('aws-cdk-lib/aws-certificatemanager');
 const route53 = require('aws-cdk-lib/aws-route53');
 const targets = require('aws-cdk-lib/aws-route53-targets');
 const { redirectCode } = require('./redirect');
+const { feedbackApi } = require('./feedback');
 
-// Everything the browser needs comes from 'self'. Add the API and Cognito hosts here when the backend lands.
+// Everything the browser needs comes from 'self', the feedback call included: /api/* is a CloudFront behavior on the same
+// origin, so no connect-src is needed. Add the Cognito host here when sign-in lands.
 const CSP = "default-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 
 class VisaLifeStack extends Stack {
@@ -66,6 +68,8 @@ class VisaLifeStack extends Stack {
       compress: true,
     });
 
+    const feedback = feedbackApi(this);
+
     const distribution = new cloudfront.Distribution(this, 'Cdn', {
       comment: `VisaLife ${envName}`,
       defaultRootObject: 'index.html',
@@ -82,6 +86,16 @@ class VisaLifeStack extends Stack {
       defaultBehavior: behavior(headersPolicy('PageHeaders', 'no-cache')),
       additionalBehaviors: {
         'assets/*': behavior(headersPolicy('AssetHeaders', 'public, max-age=31536000, immutable')),
+        // Written out, not behavior(): that helper allows GET and HEAD only, and the API takes POST. The viewer's Host
+        // header is not forwarded, because API Gateway routes on its own domain. Never cached.
+        'api/*': {
+          origin: new origins.RestApiOrigin(feedback.api),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+          responseHeadersPolicy: headersPolicy('ApiHeaders', 'no-store'),
+        },
       },
       // BrowserRouter deep links such as /journey are not objects in the bucket.
       errorResponses: [403, 404].map((httpStatus) => ({

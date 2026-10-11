@@ -25,12 +25,19 @@ Phone (PWA)                          AWS (one CDK stack per env: dev, prod)
 
 Key choices
 - **Content and the checklist engine run entirely in the browser.** The backend exists only for
-  profile sync and the policy ingest. Anonymous users never call the API.
+  profile sync, the policy ingest and anonymous feedback. Anonymous users call the API only to send
+  feedback they chose to send (`POST /api/feedback`, below).
 - **Policy feed is a static JSON object on S3**, regenerated daily by a Lambda. No API route,
   no DynamoDB rows. `shortcut: single policy.json; move to DynamoDB + GET /v1/policy when it
   passes ~1 MB or when per-user read state is needed.`
 - **One Lambda for the REST API** using `lambda-api` routing; **one** for ingest.
 - **Single DynamoDB table** via `dynamodb-onetable`; Phase 1 has one model (`Profile`).
+- **Anonymous feedback** (built ahead of sign-in): browser `POST /api/feedback` on the site's own origin ->
+  CloudFront behavior `api/*` (all methods, no cache, no Host header) -> API Gateway REST `api/feedback`
+  (stage `prod`, 5 rps) -> Lambda `FeedbackFn` (`api/src/feedback.js`) -> private `FeedbackBucket`
+  (`feedback/YYYY/MM/DD/<id>.json`; the function can only `s3:PutObject`). The same-origin call needs no CSP
+  change. CloudFront maps any 403 or 404 to `index.html` with status 200, so the Lambda never returns those
+  for its route and the client counts only a 200 `application/json` `{ok:true}` as sent.
 - **Runtime config** (`/config.json`) is emitted by CDK from stack outputs so the web build
   does not need to know API/Cognito ids at build time.
 
@@ -59,13 +66,15 @@ VisaLife/
     content/glossary.md
   api/                    Node 22 ESM
     src/handler.js        lambda-api app (GET/PUT/DELETE /v1/me)
+    src/feedback.js       lambda-api app: POST /api/feedback (anonymous feedback -> S3); createApp({put}) for tests
+    src/redact.js         masks emails, phones, receipt numbers, A-numbers and SSNs before saving
     src/policyIngest.js   scheduled ingest → S3 policy.json
     src/lib/db.js         onetable Table + schema
     src/lib/validate.js   profile allowlist validator
     src/lib/congress.js, src/lib/fedreg.js, src/lib/tags.js
     test/*.test.js        node:test
   infra/                  AWS CDK v2 (JavaScript)
-    bin/visalife.js, lib/visalife-stack.js, cdk.json, test/stack.test.js
+    bin/visalife.js, lib/visalife-stack.js, lib/feedback.js, cdk.json, test/stack.test.js
   data/visa-bulletin/YYYY-MM.json, data/policy-watchlist.json, data/consulates.json
   scripts/fetch-visa-bulletin.mjs (+ fixture test)
   docs/PRD.md, docs/TDD.md, docs/CONTENT-GUIDE.md, README.md
@@ -322,7 +331,8 @@ sheet. The build script requires `short`.
 
 ## B8. Security and privacy
 
-- Anonymous use sends nothing to the backend. Signed-in users store only email + the profile.
+- Anonymous use sends nothing to the backend except feedback the person chooses to send, which has no
+  identifier, is redacted and is not deletable. Signed-in users store only email + the profile.
 - JWT verified by API Gateway (Cognito authorizer); Lambda trusts `claims.sub` only.
 - IAM: `ApiFn` read/write on the one table; `IngestFn` `s3:PutObject` on one bucket.
 - Secrets (Google client secret, Congress key) in Secrets Manager, never in code or `config.json`.
