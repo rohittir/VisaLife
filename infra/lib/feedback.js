@@ -28,7 +28,8 @@ function feedbackApi(scope) {
     runtime: lambda.Runtime.NODEJS_22_X,
     memorySize: 128,
     timeout: Duration.seconds(10),
-    reservedConcurrentExecutions: 5,
+    // No reservedConcurrentExecutions: this account's Lambda quota is 10 in total and AWS keeps 10 unreserved, so any
+    // reservation is refused at deploy. The API stage throttle (5 requests a second) is the cap.
     environment: { BUCKET: bucket.bucketName },
     logGroup: new logs.LogGroup(scope, 'FeedbackLogs', { retention: logs.RetentionDays.ONE_MONTH, removalPolicy: RemovalPolicy.DESTROY }),
     bundling: { format: OutputFormat.ESM, mainFields: ['module', 'main'], externalModules: ['@aws-sdk/*'] },

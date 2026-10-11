@@ -156,7 +156,7 @@ test('the function can only put objects under feedback/ in its own bucket', () =
   assert.equal(fn.Properties.Runtime, 'nodejs22.x');
   assert.equal(fn.Properties.MemorySize, 128);
   assert.equal(fn.Properties.Timeout, 10);
-  assert.equal(fn.Properties.ReservedConcurrentExecutions, 5);
+  assert.equal(fn.Properties.ReservedConcurrentExecutions, undefined); // the account quota (10) leaves nothing to reserve
   assert.deepEqual(fn.Properties.Environment.Variables.BUCKET, { Ref: bucketId });
   const roleId = fn.Properties.Role['Fn::GetAtt'][0];
   const [, policy] = resources(t, 'AWS::IAM::Policy').find(([, p]) => p.Properties.Roles.some((r) => r.Ref === roleId));
