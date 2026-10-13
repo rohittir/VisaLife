@@ -64,13 +64,13 @@
     "title": "No valid visa stamp",
     "short": "Have you booked a visa appointment?",
     "ask": "Have you booked a consulate appointment that fits your trip, in the country where you are a national or resident?",
-    "why": "Since September 2025 the State Department expects nonimmigrant visa applicants to apply in their country of nationality or residence, so routine third-country stamping in Canada or Mexico is no longer a safe plan. Waits in India vary by post and can run months.",
+    "why": "Since September 2025 the State Department expects nonimmigrant visa applicants to apply in their country of nationality or residence, so routine third-country stamping in Canada or Mexico is no longer a safe plan. Waits in India vary by post and can run months. Book with a complete DS-160: India cancels appointments made with placeholder forms and allows one reschedule.",
     "links": [
       { "label": "Book in India (ustraveldocs)", "url": "https://www.ustraveldocs.com/in/" },
       { "label": "Global visa wait times (State Dept)", "url": "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/global-visa-wait-times.html" }
     ],
     "verify": true,
-    "sources": ["https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/global-visa-wait-times.html"], "lastReviewed": "2026-10-10"
+    "sources": ["https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/global-visa-wait-times.html"], "lastReviewed": "2026-10-13"
   },
   {
     "id": "common-travel-interview-waiver", "visas": ["H1B", "H4", "F1"], "priority": 2,

@@ -12,7 +12,7 @@
   "groups": [
     { "label": "Changing employer", "steps": ["h1b-job-portability"] },
     { "label": "Laid off or benched", "steps": ["h1b-job-grace-60", "h1b-job-benched"] },
-    { "label": "Travel and visa stamping", "steps": ["h1b-trip-prep", "h1b-trip-stamping", "h1b-trip-100k"] },
+    { "label": "Travel and visa stamping", "steps": ["h1b-trip-prep", "h1b-trip-stamping", "stamping-india-slots", "stamping-ds160", "stamping-ds160-changes", "h1b-trip-100k"] },
     { "label": "Spouse and children", "steps": ["h1b-fam-h4", "h1b-fam-h4-ead", "h1b-fam-kid-21"] }
   ]
 }
