@@ -8,7 +8,8 @@ sources:
   - https://travel.state.gov/content/travel/en/News/visas-news/interview-waiver-update-sept-18-2025.html
   - https://www.uscis.gov/green-card/green-card-processes-and-procedures/travel-documents
   - https://i94.cbp.dhs.gov
-lastReviewed: 2026-10-10
+  - https://www.ustraveldocs.com/in/en/renew-visa
+lastReviewed: 2026-10-13
 verify: true
 ---
 #### What it is
@@ -24,7 +25,7 @@ Before you book any international trip.
 
 - A new visa stamp means a DS-160 application and a consulate appointment.
 - Since September 2025, the State Department asks visa applicants to apply in their country of nationality or residence.
-- Interview waivers were narrowed in 2025. Check whether you still qualify before you plan around one.
+- In India, H-4 renewals do not qualify for an interview waiver. Plan for an interview.
 
 #### What to watch for
 

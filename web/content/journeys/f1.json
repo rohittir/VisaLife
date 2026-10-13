@@ -8,5 +8,8 @@
     { "id": "h1b_selected", "steps": ["f1-h1b-petition", "f1-cap-gap", "f1-100k-payment"] },
     { "id": "ending", "steps": ["f1-grace-period", "f1-ending-options"] },
     { "id": "leaving", "steps": ["leaving-last-day", "leaving-pending-case", "leaving-keep-records", "leaving-family", "leaving-final-pay", "leaving-401k", "leaving-ira-roth", "leaving-hsa-fsa", "leaving-stock-awards", "leaving-bank-credit", "leaving-health-gap", "leaving-tax-year", "leaving-departing-alien", "leaving-state-tax", "leaving-social-security", "leaving-home-sale", "leaving-remittance-tax", "leaving-brokerage", "leaving-cash-or-hold", "leaving-investment-tax", "leaving-save-tax", "leaving-india-rnor", "leaving-india-timing", "leaving-india-accounts", "leaving-india-fema-assets", "leaving-india-money-in", "leaving-india-disclosure", "leaving-india-tax-credit", "leaving-india-retirement", "leaving-india-disclosure-window", "leaving-india-oci", "leaving-india-pan-aadhaar"] }
+  ],
+  "groups": [
+    { "label": "Travel and visa stamping", "steps": ["stamping-india-slots", "stamping-ds160", "stamping-ds160-changes"] }
   ]
 }
