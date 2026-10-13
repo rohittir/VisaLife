@@ -69,10 +69,10 @@ Test: one `aws-cdk-lib/assertions` test for public-access block, OAC, the 403 an
 
 ## 8. Custom domain (Stage 3): done
 
-`visalife.workingalien.com`, set in `infra/cdk.json` context (`domain`, `certificateArn`, `hostedZoneId`, `zoneName`).
+`visalife.workingalien.com`, set in `infra/cdk.json` context (`domain`, `certificateArn`).
 
 - **Certificate:** an ACM certificate in `us-east-1` covering `workingalien.com` and `*.workingalien.com`.
-- **DNS:** the stack creates the A and AAAA alias records in the account's Route 53 zone for `workingalien.com`.
+- **DNS:** `workingalien.com` DNS is at IONOS, outside this stack. A CNAME there points `visalife` at the distribution's `cloudfront.net` address. The Route 53 zone was deleted, and its alias records were removed from the stack on 2026-10-13. Set `hostedZoneId` and `zoneName` again only if DNS moves back to Route 53; the stack then creates the A and AAAA alias records.
 - **TLS:** `minimumProtocolVersion` is TLS 1.2 now that a custom certificate is attached.
 - **Search engines:** still `noindex`. Set `indexable` to `true` in `cdk.json` and redeploy once the content marked `verify` has been reviewed. Add HSTS preload only after that.
 - **Unset the domain** (remove `domain` from the context) and the stack serves the `cloudfront.net` address again.
