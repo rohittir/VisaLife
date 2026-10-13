@@ -76,7 +76,7 @@ Test: one `aws-cdk-lib/assertions` test for public-access block, OAC, the 403 an
 - **TLS:** `minimumProtocolVersion` is TLS 1.2 now that a custom certificate is attached.
 - **Search engines:** still `noindex`. Set `indexable` to `true` in `cdk.json` and redeploy once the content marked `verify` has been reviewed. Add HSTS preload only after that.
 - **Unset the domain** (remove `domain` from the context) and the stack serves the `cloudfront.net` address again.
-- **Apex redirect:** `workingalien.com` answers every request with a 302 to `visalife.workingalien.com`, keeping path and query. A second tiny CloudFront distribution runs one function (`infra/lib/redirect.js`); both http and https take one hop. `www.workingalien.com` has no record. Switch the function to 301 when the move is permanent, and turn it off with `apexRedirect: false`.
+- **Apex redirect: off** (`apexRedirect: false`, removed 2026-10-13). `workingalien.com` DNS moved to IONOS and its apex no longer points at AWS. When on, a second tiny CloudFront distribution runs one function (`infra/lib/redirect.js`) that answers every request with a 302 to `visalife.workingalien.com`, keeping path and query. It needs a Route 53 zone for `workingalien.com`.
 
 ## 9. Backend hook (Stage 4, from TDD B5)
 

@@ -6,6 +6,6 @@
     "hostedZoneId": "Z005858730WZGO4A9LJ6O",
     "zoneName": "workingalien.com",
     "indexable": false,
-    "apexRedirect": true
+    "apexRedirect": false
   }
 }
